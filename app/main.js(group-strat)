@@ -1,0 +1,161 @@
+
+var map, layer, cursors, jumpButton, runButton, result, collectables
+
+const mario = {
+  sprite: undefined,
+  direction: 'right',
+  doNothing: true
+}, level1 = {}
+
+level1.preload = () => {
+  game.load.tilemap('objects', '../marioPhaser/assets/Level-1.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.image('tiles', '../marioPhaser/assets/items2.png')
+  game.load.spritesheet('mario', '../marioPhaser/assets/marioSmall.png', 34, 34, 7)
+}
+
+level1.create = () => {
+    game.physics.startSystem(Phaser.Physics.ARCADE)
+    game.stage.backgroundColor = '#000000'
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
+    map = game.add.tilemap('objects')
+    map.addTilesetImage('items', 'tiles')
+    layer = map.createLayer('Level 1')
+    layer.resizeWorld()
+    layer.wrap = true
+    map.setCollisionBetween(14, 16)
+    map.setCollisionBetween(21, 22)
+    map.setCollisionBetween(27, 28)
+    map.setCollisionByIndex(10)
+    map.setCollisionByIndex(13)
+    map.setCollisionByIndex(17)
+    map.setCollisionByIndex(40)
+    //map.setTileIndexCallback(18, level1.gotKey, level1);
+    //map.setTileIndexCallback(4, level1.addValue(50), level1);
+    //map.setTileIndexCallback(10, level1.addValue(100), level1);
+    //map.setTileIndexCallback(11, level1.addValue(150), level1);
+
+    collectables = {};["gum","white_d","red_d"].forEach(i => {collectables[i] = game.add.group()});
+    Object.keys(collectables).forEach(k => collectables[k].enableBody = true);
+    map.createFromObjects('gums', 4, 'gum', 0, true, false, collectables.gum);
+    map.createFromObjects('white_ds', 10, 'white_d', 0, true, false, collectables.white_d);
+    map.createFromObjects('red_ds', 11, 'red_d', 0, true, false, collectables.red_d);
+    map.createFromObjects('cup', 18, 'cup', 0, true, false, collectables.cup);
+
+    mario.sprite = game.add.sprite(50, 50, 'mario')
+    mario.sprite.scale.setTo(0.47, 0.47)
+    mario.sprite.anchor.x=0.5
+    mario.sprite.anchor.y=0.5
+    mario.sprite.animations.add('walk')
+
+    game.physics.enable(mario.sprite)
+    game.physics.arcade.gravity.y = 700
+    mario.sprite.body.bounce.y = 0
+    mario.sprite.body.width /= 3
+    mario.sprite.body.offset.x = mario.sprite.body.width*2
+    mario.sprite.body.linearDamping = 1
+    mario.sprite.body.collideWorldBounds = true
+
+    //mario.sprite.body.acceleration.x = 120;
+
+    mario.sprite.animations.add('left', [2,4,5], 10, true)
+    mario.sprite.animations.add('wait', [0], 10, true)
+    mario.sprite.animations.add('jump', [6], 10, true)
+
+    mario.sprite.body.fixedRotation = true
+    //mario.sprite.body.onBeginContact.add(blockHit, this);
+
+    game.camera.follow(mario.sprite)
+    cursors = game.input.keyboard.createCursorKeys()
+    jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
+    runButton = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
+}
+level1.gotKey = function(sprite, tile) {
+    this.hasKey=true
+    console.log("Key",sprite,tile)
+    this.addValue(1000)(sprite, tile)
+}
+level1.addValue = s => function(sprite, tile) {
+    if(isNaN(this.score)) {this.score=0}
+    this.score+=s;tile.alpha=.2;tile.kill()
+    console.log("Points",sprite,tile)
+    //layer.dirty=true
+}
+level1.update = () => {
+    game.physics.arcade.collide(mario.sprite, layer)
+    Object.keys(collectables).forEach(g => {
+        const lookup = {gum: 50, white_d: 100, red_d: 150, cup: 1000}
+        game.physics.arcade.overlap(mario.sprite, collectables[g], g=="cup"?level1.gotKey:level1.addValue(lookup[g]), null, level1);
+    })
+    mario.doNothing = true
+    if (cursors.left.isDown){
+        //mario.sprite.body.acceleration.x = -120;
+        if(mario.direction!='left'){
+            mario.sprite.scale.x *= -1
+            mario.direction = 'left'
+        }
+        if(mario.sprite.body.velocity.x==0 ||
+            (mario.sprite.animations.currentAnim.name!='left' && mario.sprite.body.onFloor())){
+            mario.sprite.animations.play('left', 10, true)
+        }
+
+        mario.sprite.body.velocity.x -= 5
+        if(runButton.isDown){
+            if(mario.sprite.body.velocity.x<-200){
+                mario.sprite.body.velocity.x = -200
+            }
+        }else{
+            if(mario.sprite.body.velocity.x<-120){
+                mario.sprite.body.velocity.x = -120
+            }
+        }
+        mario.doNothing = false
+    } else if (cursors.right.isDown){
+        if(mario.direction!='right'){
+            mario.sprite.scale.x *= -1
+            mario.direction = 'right'
+        }
+        if(mario.sprite.body.velocity.x==0 ||
+            (mario.sprite.animations.currentAnim.name!='left' && mario.sprite.body.onFloor())){
+            mario.sprite.animations.play('left', 10, true)
+        }
+        mario.sprite.body.velocity.x += 5
+        if(runButton.isDown){
+            if(mario.sprite.body.velocity.x>200){
+                mario.sprite.body.velocity.x = 200
+            }
+        }else{
+            if(mario.sprite.body.velocity.x>120){
+                mario.sprite.body.velocity.x = 120
+            }
+        }
+        mario.doNothing = false
+    }
+    if (cursors.up.isDown && mario.sprite.body.onFloor()){
+        mario.sprite.body.velocity.y = -250
+        mario.sprite.animations.play('jump', 20, true)
+        mario.doNothing = false
+    }
+    if(mario.doNothing){
+        if(mario.sprite.body.velocity.x>10){
+            //mario.sprite.body.acceleration.x = 10;
+            mario.sprite.body.velocity.x -= 10
+        }else if(mario.sprite.body.velocity.x<-10){
+            //mario.sprite.body.acceleration.x = -10;
+            mario.sprite.body.velocity.x += 10
+        }else{
+            //mario.sprite.body.acceleration.x = 0;
+            mario.sprite.body.velocity.x = 0
+        }
+        if(mario.sprite.body.onFloor()){
+            mario.sprite.animations.play('wait', 20, true)
+        }
+    }
+}
+
+level1.render = () => {
+    game.debug.bodyInfo(mario.sprite, 32, 32)
+    game.debug.body(mario.sprite)
+}
+var game = new Phaser.Game(304,160, Phaser.AUTO, 'game', undefined, true)
+game.state.add("Level 1", level1)
+game.state.start("Level 1")

@@ -2,11 +2,6 @@ html
   head
     title DangerousNanthy
     style.
-      /* http://meyerweb.com/eric/tools/css/reset/
-       v2.0 | 20110126
-       License: none (public domain)
-      */
-
       html, body, div, span, applet, object, iframe,
       h1, h2, h3, h4, h5, h6, p, blockquote, pre,
       a, abbr, acronym, address, big, cite, code,
@@ -50,6 +45,9 @@ html
         border-collapse: collapse;
         border-spacing: 0;
       }
+      body {background: black}
+      #game {position:absolute;top:50%;transform:translateY(-50%);width:100%}
+    link(rel="stylesheet",href='https://fonts.googleapis.com/css?family=Raleway|Poiret+One')
   body
     div#game
     script(src="../bower_components/phaser/build/phaser.min.js")

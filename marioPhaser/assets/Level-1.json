@@ -14,23 +14,22 @@
  "nextobjectid":1,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tileheight":16,
+ "tileheight":32,
  "tilesets":[
         {
          "columns":11,
          "firstgid":1,
          "image":"items2.png",
-         "imageheight":64,
-         "imagewidth":176,
+         "imageheight":128,
+         "imagewidth":352,
          "margin":0,
-         "name":"items",
+         "name":"Assets",
          "spacing":0,
          "tilecount":44,
-         "tileheight":16,
-         "tilewidth":16,
-         "transparentcolor":"#6888ff"
+         "tileheight":32,
+         "tilewidth":32
         }],
- "tilewidth":16,
+ "tilewidth":32,
  "version":1,
  "width":19
 }

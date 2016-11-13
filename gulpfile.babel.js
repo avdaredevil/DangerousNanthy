@@ -55,4 +55,4 @@ gulp.task('connect', _ => {
   })
 })
 
-gulp.task('default', ['connect', 'watch'])
+gulp.task('default', ['connect', 'pug', 'js', 'watch'])
