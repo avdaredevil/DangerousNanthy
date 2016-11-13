@@ -172,7 +172,7 @@ level.update = () => {
 
 level.render = () => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
-    game.debug.body(nanthy.sprite)
+    //game.debug.body(nanthy.sprite)
 }
 var game = new Phaser.Game(608,320, Phaser.AUTO, 'game', undefined, true)
 game.state.add("Level", level)
