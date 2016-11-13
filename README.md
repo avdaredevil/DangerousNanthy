@@ -1,6 +1,8 @@
 # Dangerous Nanthy
 >A web clone of the classic DOS game Dangerous Dave, with a twist!
 
+![snapshot](snapshot.png)
+
 ## The stuff on the inside ~oooohhh~
 * Game engine - Phaser.io
 * Preprocessing - Node, Gulp, Babel
@@ -33,4 +35,6 @@ Now to run that gulp task:
 gulp
 ```
 
-Great, now all you have to do is click on [this link](http://localhost:5000/package) and you're all set :smiley:
+Great, now all you have to do is click on [this link](http://localhost:5000/package) and you're all set!
+
+Enjoy :smiley:
