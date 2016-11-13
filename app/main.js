@@ -15,7 +15,7 @@ var preload = () => {
 
 var create = () => {
   game.physics.startSystem(Phaser.Physics.ARCADE)
-  game.stage.backgroundColor = '#5C94FC'
+  game.stage.backgroundColor = '#000'
 
   map = game.add.tilemap('objects')
   map.addTilesetImage('items', 'tiles')
@@ -39,6 +39,8 @@ var create = () => {
   game.physics.enable(mario.sprite)
   game.physics.arcade.gravity.y = 700
   mario.sprite.body.bounce.y = 0
+  mario.sprite.body.width /= 3
+  mario.sprite.body.offset.x = mario.sprite.body.width*2
   mario.sprite.body.linearDamping = 1
   mario.sprite.body.collideWorldBounds = true
 
@@ -105,7 +107,7 @@ var update = () => {
   }
   if (cursors.up.justDown){
     if(mario.sprite.body.onFloor()){
-      mario.sprite.body.velocity.y = -310
+      mario.sprite.body.velocity.y = -250
       mario.sprite.animations.play('jump', 20, true)
       mario.doNothing = false
     }
@@ -129,5 +131,8 @@ var update = () => {
 
 var render = () => {
   game.debug.bodyInfo(mario.sprite, 32, 32)
+  game.debug.body(mario.sprite)
 }
-var game = new Phaser.Game(256, 256, Phaser.AUTO, 'game', { preload: preload, create: create, update: update, render:render})
+var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game', undefined, true)
+game.state.add("Level 1", { preload: preload, create: create, update: update, render:render })
+game.state.start("Level 1")
