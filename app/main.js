@@ -77,6 +77,9 @@ level.create = () => {
     nanthy.sprite.body.fixedRotation = true
     nanthy.resetMe()
     level.text = game.add.text(0,0, "Dangerous Nanthy",{font: "32px Raleway,Arial", fill: "#23b929"})
+    level.text.fixedToCamera = true
+    level.scoreText = game.add.text(400,0, `Score: ${level.score}`, {font: "32px Raleway,Arial", fill: "#23b929", boundsAlignH: "right"})
+    level.scoreText.fixedToCamera = true
     //level.text.position.y = (50-level.text.height)/2
     //nanthy.sprite.body.onBeginContact.add(blockHit, this);
 
@@ -110,6 +113,7 @@ level.addValue = s => function(sprite, tile) {
     if(isNaN(this.score)) {this.score=0}
     this.score+=s
     map.removeTile(tile.x, tile.y, layer).destroy();
+    level.scoreText.setText(`Score: ${this.score}`)
     console.log("Points",this.score)
 }
 level.update = () => {
@@ -120,7 +124,7 @@ level.update = () => {
     ar.overlap(nanthy.sprite, animate.electricity, level.died, null, level);
     nanthy.doNothing = true;const floored = nanthy.sprite.body.onFloor()
     const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150}
-    
+
     if (cursors.left.isDown){
         //nanthy.sprite.body.acceleration.x = -120;
         if(nanthy.direction!='left'){
