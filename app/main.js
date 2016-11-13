@@ -17,7 +17,7 @@ const nanthy = {
 level.preload = () => {
   game.load.tilemap('objects', '../marioPhaser/assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', '../marioPhaser/assets/items2.png')
-  game.load.spritesheet('nanthy', '../marioPhaser/assets/marioSmall.png', 34, 34, 7)
+  game.load.spritesheet('nanthy', '../marioPhaser/assets/Dave.png', 32, 32, 7)
   game.load.spritesheet('electricity', '../marioPhaser/assets/electricity.png', 32, 32)
   game.load.spritesheet('water', '../marioPhaser/assets/water.png', 32, 32)
   game.load.spritesheet('fire', '../marioPhaser/assets/fire.png', 32, 32)
