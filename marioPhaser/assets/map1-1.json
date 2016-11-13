@@ -13,25 +13,19 @@
         }],
  "nextobjectid":1,
  "orientation":"orthogonal",
- "properties":
-    {
-
-    },
  "renderorder":"right-down",
  "tileheight":16,
  "tilesets":[
         {
+         "columns":11,
          "firstgid":1,
          "image":"items.png",
          "imageheight":64,
          "imagewidth":176,
          "margin":0,
          "name":"items",
-         "properties":
-            {
-
-            },
          "spacing":0,
+         "tilecount":44,
          "tileheight":16,
          "tilewidth":16,
          "transparentcolor":"#6888ff"
