@@ -1,0 +1,20 @@
+{
+  "name": "dangerousnanthy",
+  "description": "",
+  "main": "gulpfile.babel.js",
+  "authors": [
+    "Ananth Rao <ananthamapod@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/ananthamapod/DangerousNanthy",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phaser": "^2.6.2"
+  }
+}
