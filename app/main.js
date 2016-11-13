@@ -14,20 +14,26 @@ const nanthy = {
     }
 }, level = {}
 
-level.preload = () => {
-  game.load.tilemap('objects', '../marioPhaser/assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
+var gong, music
+
+level.preload = _ => {
+  game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', '../marioPhaser/assets/items2.png')
-  game.load.spritesheet('nanthy', '../marioPhaser/assets/Dave.png', 32, 32, 7)
-  game.load.spritesheet('electricity', '../marioPhaser/assets/electricity.png', 32, 32)
-  game.load.spritesheet('water', '../marioPhaser/assets/water.png', 32, 32)
-  game.load.spritesheet('fire', '../marioPhaser/assets/fire.png', 32, 32)
+  game.load.spritesheet('nanthy', '../assets/Dave.png', 32, 32, 7)
+  game.load.spritesheet('electricity', '../assets/electricity.png', 32, 32)
+  game.load.spritesheet('water', '../assets/water.png', 32, 32)
+  game.load.spritesheet('fire', '../assets/fire.png', 32, 32)
+  game.load.audio('gong', '../assets/gong.mp3')
+  game.load.audio('music', '../assets/02 Underclocked.mp3')
 }
 
-level.create = () => {
+level.create = _ => {
     game.physics.startSystem(Phaser.Physics.ARCADE)
     game.stage.backgroundColor = '#000000'
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
     map = game.add.tilemap('objects')
+    music = game.add.audio('music')
+    gong = game.add.audio('gong')
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
@@ -87,7 +93,10 @@ level.create = () => {
     cursors = game.input.keyboard.createCursorKeys()
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
     runButton = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
+    music.onStop(music.play, this)
+    music.play()
 }
+
 level.initiateElementAnimations = _ => {
     Object.keys(animate).forEach(k => {
         animate[k].setAll('body.immovable', true);
@@ -106,6 +115,7 @@ level.died = function(sprite, tile) {
 }
 level.gotKey = function(sprite, tile) {
     console.log("Key",sprite,tile)
+    gong.play()
     this.hasKey = true
     this.addValue(1000).bind(this)(sprite, tile)
 }
@@ -116,7 +126,7 @@ level.addValue = s => function(sprite, tile) {
     level.scoreText.setText(`Score: ${this.score}`)
     console.log("Points",this.score)
 }
-level.update = () => {
+level.update = _ => {
     const ar = game.physics.arcade
     ar.collide(nanthy.sprite, layer)
     ar.overlap(nanthy.sprite, animate.fire, level.died, null, level);
@@ -174,7 +184,7 @@ level.update = () => {
     }
 }
 
-level.render = () => {
+level.render = _ => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
     //game.debug.body(nanthy.sprite)
 }

@@ -38,3 +38,9 @@ gulp
 Great, now all you have to do is click on [this link](http://localhost:5000/package) and you're all set!
 
 Enjoy :smiley:
+
+Credits:
+
+1. Modified spritesheet from agar3s's marioPhaser project
+2. Sound effect assets from soundbible.com
+3. Soundtrack from http://ericskiff.com/
