@@ -2,6 +2,7 @@ const gulp = require('gulp')
 const babel = require('gulp-babel')
 const pug = require('gulp-pug')
 const pump = require('pump')
+const connect = require('gulp-connect')
 
 const roots = {
   src: 'app',
@@ -47,4 +48,11 @@ gulp.task('watch', _ => {
   gulp.watch(srcs.JS, ['js'])
 })
 
-gulp.task('default', ['watch'])
+gulp.task('connect', _ => {
+  connect.server({
+    root: './',
+    port: 5000
+  })
+})
+
+gulp.task('default', ['connect', 'watch'])
