@@ -1,4 +1,5 @@
 const gulp = require('gulp')
+const babel = require('gulp-babel')
 const pug = require('gulp-pug')
 const pump = require('pump')
 
@@ -8,14 +9,27 @@ const roots = {
 }
 
 const srcs = {
-  JS: `${roots.src}/*.js`,
-  PUG: `${roots.src}/*.pug`
+  JS: "app/main.js",//`${roots.src}/*.js`,
+  PUG: "app/index.pug"//`${roots.src}/*.pug`
 }
 
 const dests = {
-  JS: `${roots.dest}/main.js`,
-  PUG: `${roots.dest}/index.html`
+  JS: "package/",//`${roots.dest}/main.js`,
+  PUG: "package/"//`${roots.dest}/index.html`
 }
+
+gulp.task('js', (cb) => {
+  pump(
+    [
+      gulp.src(srcs.JS),
+      babel({
+        presets: ['es2015', 'stage-0']
+      }),
+      gulp.dest(dests.JS)
+    ],
+    cb
+  )
+})
 
 gulp.task('pug', (cb) => {
   pump(
@@ -30,6 +44,7 @@ gulp.task('pug', (cb) => {
 
 gulp.task('watch', _ => {
   gulp.watch(srcs.PUG, ['pug'])
+  gulp.watch(srcs.JS, ['js'])
 })
 
 gulp.task('default', ['watch'])
