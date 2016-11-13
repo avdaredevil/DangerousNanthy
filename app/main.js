@@ -1,4 +1,3 @@
-var game = new Phaser.Game(256, 256, Phaser.AUTO, 'game', { preload: preload, create: create, update: update, render:render})
 
 var map, layer, cursors, jumpButton, runButton, result
 
@@ -8,19 +7,19 @@ const mario = {
   doNothing: true
 }
 
-const preload = () => {
-  game.load.tilemap('objects', 'marioPhaser/assets/Level-1.json', null, Phaser.Tilemap.TILED_JSON)
-  game.load.image('tiles', 'marioPhaser/assets/items2.png')
-  game.load.spritesheet('mario', 'marioPhaser/assets/marioSmall.png', 34, 34, 7)
+var preload = () => {
+  game.load.tilemap('objects', '../marioPhaser/assets/Level-1.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.image('tiles', '../marioPhaser/assets/items2.png')
+  game.load.spritesheet('mario', '../marioPhaser/assets/marioSmall.png', 34, 34, 7)
 }
 
-const create = () => {
+var create = () => {
   game.physics.startSystem(Phaser.Physics.ARCADE)
   game.stage.backgroundColor = '#5C94FC'
 
   map = game.add.tilemap('objects')
   map.addTilesetImage('items', 'tiles')
-  layer = map.createLayer('Capa de Patrones 1')
+  layer = map.createLayer('Level 1')
   layer.resizeWorld()
   layer.wrap = true
   map.setCollisionBetween(14, 16)
@@ -58,7 +57,7 @@ const create = () => {
   runButton = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
 }
 
-const update = () => {
+var update = () => {
   game.physics.arcade.collide(mario.sprite, layer)
   mario.doNothing = true
   if (cursors.left.isDown){
@@ -128,6 +127,7 @@ const update = () => {
   }
 }
 
-const render = () => {
+var render = () => {
   game.debug.bodyInfo(mario.sprite, 32, 32)
 }
+var game = new Phaser.Game(256, 256, Phaser.AUTO, 'game', { preload: preload, create: create, update: update, render:render})
