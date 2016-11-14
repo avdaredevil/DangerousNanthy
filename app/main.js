@@ -1,5 +1,5 @@
 
-var map, layer, cursors, jumpButton, runButton, result, animate
+var map, layer, cursors, jumpButton, buttons = {}, result, animate
 
 const nanthy = {
     sprite: undefined,
@@ -75,7 +75,7 @@ level.create = _ => {
 
     game.physics.enable(nanthy.sprite)
     game.physics.arcade.gravity.y = 700
-    //nanthy.sprite.body.position
+    //= Nanthy ==============================|
     nanthy.sprite.body.bounce.y = 0
     nanthy.sprite.body.width /= 3
     nanthy.sprite.body.offset.x=(nanthy.sprite.width-nanthy.sprite.body.width)/2
@@ -90,6 +90,16 @@ level.create = _ => {
 
     nanthy.sprite.body.fixedRotation = true
     nanthy.resetMe()
+    
+    //= Bullets ==============================|
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+    bullets.createMultiple(1, 'bullet');
+    bullets.setAll('checkWorldBounds', true);
+    bullets.setAll('outOfBoundsKill', true);
+    //= Texts ==============================|
     level.text = game.add.text(0,0, "Dangerous Nanthy",{font: "32px Raleway,Arial", fill: "#23b929"})
     level.text.fixedToCamera = true
     level.scoreText = game.add.text(400,0, `Score: ${level.score}`, {font: "32px Raleway,Arial", fill: "#23b929", boundsAlignH: "right"})
@@ -99,8 +109,9 @@ level.create = _ => {
 
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
-    jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
-    runButton = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
+    buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
+    buttons.jet = game.input.keyboard.addKey(Phaser.Keyboard.ALT)
+    buttons.shoot = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL)
     music.onStop.add(music.play, this)
     music.play()
 }
@@ -165,7 +176,7 @@ level.update = _ => {
         }
 
         nanthy.sprite.body.velocity.x -= velocities.rest
-        nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[runButton.isDown?"speed":"normal"])
+        nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
     } else if (cursors.right.isDown){
         if(nanthy.direction!='right'){
@@ -177,7 +188,7 @@ level.update = _ => {
             nanthy.sprite.animations.play('left', 10, true)
         }
         nanthy.sprite.body.velocity.x += velocities.rest
-        nanthy.sprite.body.velocity.x = Math.min(nanthy.sprite.body.velocity.x,velocities[runButton.isDown?"speed":"normal"])
+        nanthy.sprite.body.velocity.x = Math.min(nanthy.sprite.body.velocity.x,velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
     }
     if (cursors.up.isDown && floored){
