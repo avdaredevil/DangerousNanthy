@@ -1,5 +1,5 @@
 
-var map, layer, cursors, jumpButton, buttons = {}, result, animate
+var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
 
 const nanthy = {
     sprite: undefined,
@@ -18,7 +18,8 @@ var gong, music
 
 level.preload = _ => {
   game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
-  game.load.image('tiles', '../marioPhaser/assets/items2.png')
+  game.load.image('tiles', '../assets/items2.png')
+  game.load.image('bullet', '../assets/bullet.png')
   game.load.spritesheet('nanthy', '../assets/Dave.png', 32, 32, 7)
   game.load.spritesheet('electricity', '../assets/electricity.png', 32, 32)
   game.load.spritesheet('water', '../assets/water.png', 32, 32)
@@ -92,13 +93,10 @@ level.create = _ => {
     nanthy.resetMe()
     
     //= Bullets ==============================|
-    bullets = game.add.group();
-    bullets.enableBody = true;
-    bullets.physicsBodyType = Phaser.Physics.ARCADE;
-
-    bullets.createMultiple(1, 'bullet');
-    bullets.setAll('checkWorldBounds', true);
-    bullets.setAll('outOfBoundsKill', true);
+    gun = gun || game.add.weapon(2,'bullet')
+    gun.fireRate = 2;gun.fireAngle = 0;gun.bulletSpeed = 300
+    gun.bulletGravity.y = -game.physics.arcade.gravity.y
+    gun.bulletKillType = Phaser.Weapon.KILL_CAMERA_BOUNDS
     //= Texts ==============================|
     level.text = game.add.text(0,0, "Dangerous Nanthy",{font: "32px Raleway,Arial", fill: "#23b929"})
     level.text.fixedToCamera = true
@@ -111,7 +109,7 @@ level.create = _ => {
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
     buttons.jet = game.input.keyboard.addKey(Phaser.Keyboard.ALT)
-    buttons.shoot = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL)
+    buttons.gun = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL)
     music.onStop.add(music.play, this)
     music.play()
 }
@@ -154,6 +152,11 @@ level.addValue = s => function(sprite, tile) {
     level.scoreText.setText(`Score: ${this.score}`)
     console.log("Points",this.score)
 }
+level.shootGun = function() {
+    gun.fireFrom.setTo(nanthy.sprite.x, nanthy.sprite.y - 8);
+    gun.fireAngle = nanthy.direction==="right"?0:180
+    gun.fire()
+}
 level.update = _ => {
     const ar = game.physics.arcade
     ar.collide(nanthy.sprite, layer)
@@ -164,6 +167,7 @@ level.update = _ => {
     nanthy.doNothing = true;const floored = nanthy.sprite.body.onFloor()
     const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150}
 
+    if (buttons.gun.isDown){level.shootGun.bind(level)()}
     if (cursors.left.isDown){
         //nanthy.sprite.body.acceleration.x = -120;
         if(nanthy.direction!='left'){
