@@ -10,7 +10,7 @@ const nanthy = {
         nanthy.sprite.x = layer.position.x+32*2+nanthy.sprite.width/2
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
-        level.hasKey=false
+        level.hasKey=nanthy.gun=nanthy.jet=false
     }
 }, level = {}
 
@@ -23,6 +23,7 @@ level.preload = _ => {
   game.load.spritesheet('electricity', '../assets/electricity.png', 32, 32)
   game.load.spritesheet('water', '../assets/water.png', 32, 32)
   game.load.spritesheet('fire', '../assets/fire.png', 32, 32)
+  game.load.spritesheet('chalice', '../assets/chalice.png', 32, 32)
   game.load.audio('gong', '../assets/gong.mp3')
   game.load.audio('music', '../assets/02 Underclocked.mp3')
 }
@@ -32,8 +33,8 @@ level.create = _ => {
     game.stage.backgroundColor = '#000000'
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
     map = game.add.tilemap('objects')
-    music = game.add.audio('music')
-    gong = game.add.audio('gong')
+    music = music || game.add.audio('music')
+    gong = gong || game.add.audio('gong')
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
@@ -41,22 +42,29 @@ level.create = _ => {
     map.setCollisionBetween(21, 22)
     map.setCollisionBetween(27, 28)
     //map.setCollisionByIndex(10)
-    map.setCollisionByIndex(13)
+    map.setCollisionByIndex(23)
+    map.setCollisionByIndex(34)
     map.setCollisionByIndex(17)
     map.setCollisionByIndex(18)
     map.setCollisionByIndex(40)
     // All id's are incremented by 1
+    map.setTileIndexCallback(3, level.gotJetpack, level);
+    map.setTileIndexCallback(13, level.gotGun, level);
     map.setTileIndexCallback(19, level.gotKey, level);
     map.setTileIndexCallback(5, level.addValue(50), level);
     map.setTileIndexCallback(11, level.addValue(100), level);
     map.setTileIndexCallback(12, level.addValue(150), level);
+    map.setTileIndexCallback(26, level.addValue(200), level);
+    map.setTileIndexCallback(24, level.addValue(300), level);
+    map.setTileIndexCallback(25, level.addValue(500), level);
     map.setTileIndexCallback(10, level.finishLevel, level);
     level.score = game.score
-    animate = {};["fire","electricity","water"].forEach(i => {animate[i] = game.add.group()});
-    Object.keys(animate).forEach(k => animate[k].enableBody = true);
-    map.createFromObjects('fire', 2, 'fire', 0, true, false, animate.fire);
-    map.createFromObjects('electricity', 41, 'electricity', 0, true, false, animate.electricity);
-    map.createFromObjects('water', 35, 'water', 0, true, false, animate.water);
+    animate = {};["fire","electricity","water","chalice"].forEach(i => {animate[i] = game.add.group()});
+    Object.keys(animate).forEach(k => {
+        const lookup = {chalice: 19, fire: 2, electricity: 41, water: 35}
+        animate[k].enableBody = true
+        map.createFromObjects(k, lookup[k], k, 0, true, false, animate[k]);
+    });
     level.initiateElementAnimations()
 
     nanthy.sprite = game.add.sprite(32, 32, 'nanthy')
@@ -93,7 +101,7 @@ level.create = _ => {
     cursors = game.input.keyboard.createCursorKeys()
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
     runButton = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
-    music.onStop(music.play, this)
+    music.onStop.add(music.play, this)
     music.play()
 }
 
@@ -107,22 +115,25 @@ level.initiateElementAnimations = _ => {
 }
 level.finishLevel = function(sprite, tile) {
     if (!this.hasKey) {return false}
-    game.score+=this.score;game.level++
+    game.score+=this.score+2000;game.level++
     game.state.start("Level")
 }
 level.died = function(sprite, tile) {
     console.log("Died")
 }
+level.gotGun = function(...a) {nanthy.gun = true;this.addValue().bind(this)(...a)}
+level.gotJetpack = function(...a) {nanthy.jet = true;this.addValue().bind(this)(...a)}
 level.gotKey = function(sprite, tile) {
     console.log("Key",sprite,tile)
     gong.play()
+    tile.destroy()
     this.hasKey = true
-    this.addValue(1000).bind(this)(sprite, tile)
+    this.addValue(1000).bind(this)()
 }
 level.addValue = s => function(sprite, tile) {
     if(isNaN(this.score)) {this.score=0}
-    this.score+=s
-    map.removeTile(tile.x, tile.y, layer).destroy();
+    this.score+=s||0
+    tile && map.removeTile(tile.x, tile.y, layer).destroy();
     level.scoreText.setText(`Score: ${this.score}`)
     console.log("Points",this.score)
 }
@@ -132,6 +143,7 @@ level.update = _ => {
     ar.overlap(nanthy.sprite, animate.fire, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.water, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.electricity, level.died, null, level);
+    ar.overlap(nanthy.sprite, animate.chalice, level.gotKey, null, level);
     nanthy.doNothing = true;const floored = nanthy.sprite.body.onFloor()
     const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150}
 
