@@ -109,7 +109,13 @@ level.initiateElementAnimations = _ => {
     Object.keys(animate).forEach(k => {
         animate[k].setAll('body.immovable', true);
         animate[k].setAll('body.moves', false);
-        animate[k].callAll('animations.add', 'animations', 'an', [0, 1, 2, 3], k=="fire"?10:5, true);
+        let anim = [0, 1, 2, 3];
+        let speed = k => {
+            const look = {fire: 10, chalice: 7}
+            return look[k] || 5
+        }
+        if (k=="chalice") {anim = anim.concat(anim.slice(0,3).reverse())}
+        animate[k].callAll('animations.add', 'animations', 'an', anim, speed(k), true);
         animate[k].children.forEach(c => setTimeout(_ => c.animations.play('an'), Math.random()*70))
     })
 }
