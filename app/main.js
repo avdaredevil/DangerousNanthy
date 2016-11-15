@@ -210,14 +210,12 @@ level.jetControls = function(){
 level.movementControls = function(){
     const floored = nanthy.sprite.body.onFloor()
     const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150, jump: 320}
-
     if (cursors.left.isDown){
         level.ensureDirection("left")
         if(nanthy.sprite.body.velocity.x==0 ||
             (nanthy.sprite.animations.currentAnim.name!='left' && floored)){
             nanthy.sprite.animations.play('left', 10, true)
         }
-
         nanthy.sprite.body.velocity.x -= velocities.rest
         nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
@@ -238,6 +236,7 @@ level.movementControls = function(){
             nanthy.doNothing = false
         }
     }
+    if (nanthy.sprite.animations.currentAnim.name=='jetpack') {nanthy.sprite.animations.play(floored?'left':'jump', 10, true)}
     if(nanthy.doNothing){
         if(nanthy.sprite.body.velocity.x>20){
             nanthy.sprite.body.velocity.x -= 20
