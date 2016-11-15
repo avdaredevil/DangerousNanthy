@@ -205,7 +205,7 @@ level.jetControls = function(){
     if (cursors.up.isDown) {delta.y-=velocities.jet}
     else if (cursors.down.isDown) {delta.y+=velocities.jet}
     nanthy.sprite.body.velocity.x=delta.x
-    nanthy.sprite.body.velocity.y=delta.y
+    nanthy.sprite.body.velocity.y=delta.y-12
 }
 level.movementControls = function(){
     const floored = nanthy.sprite.body.onFloor()
@@ -254,7 +254,7 @@ level.render = _ => {
     //game.debug.body(nanthy.sprite)
     animate.fire.children.forEach(e => game.debug.body(e))
 }
-var game = new Phaser.Game(608,320, Phaser.AUTO, 'game', undefined, true)
+var game = new Phaser.Game(608,320+10*2, Phaser.AUTO, 'game', undefined, true)
 game.state.add("Level", level)
 game.level = 1;game.score = 0
 game.state.start("Level")
