@@ -80,7 +80,7 @@ level.create = _ => {
     nanthy.sprite.body.width /= 3
     nanthy.sprite.body.offset.x=(nanthy.sprite.width-nanthy.sprite.body.width)/2
     nanthy.sprite.body.linearDamping = 1
-    nanthy.sprite.body.collideWorldBounds = true
+    nanthy.sprite.body.collideWorldBounds = false
 
     //nanthy.sprite.body.acceleration.x = 120;
 
@@ -171,11 +171,15 @@ level.update = _ => {
     ar.overlap(nanthy.sprite, animate.electricity, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.chalice, level.gotKey, null, level);
     nanthy.doNothing = true
-    
+    //= Modes ==========|
     if (buttons.gun.isDown){level.shootGun.bind(level)()}
     if (buttons.jet.isDown){level.toggleJetpack.bind(level)()}
+    //= Movement =======|
     if (nanthy.hasJet && nanthy.jet) {level.jetControls.bind(level)()}
     else {level.movementControls.bind(level)()}
+    //= Warping ========|
+    if (nanthy.sprite.y < -32) {nanthy.sprite.y = game.world.height + 32/2}
+    if (nanthy.sprite.y > game.world.height + 32) {nanthy.sprite.y = -32/2}
 }
 
 level.ensureDirection = function(dir){
