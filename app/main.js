@@ -45,6 +45,7 @@ level.create = _ => {
     //map.setCollisionByIndex(10)
     map.setCollisionByIndex(23)
     map.setCollisionByIndex(34)
+    map.setCollisionByIndex(39)
     map.setCollisionByIndex(17)
     map.setCollisionByIndex(18)
     map.setCollisionByIndex(40)
