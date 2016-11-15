@@ -126,6 +126,13 @@ level.initiateElementAnimations = _ => {
         if (k=="chalice") {anim = anim.concat(anim.slice(0,3).reverse())}
         animate[k].callAll('animations.add', 'animations', 'an', anim, speed(k), true);
         animate[k].children.forEach(c => setTimeout(_ => c.animations.play('an'), Math.random()*70))
+        animate[k].children.forEach(c => {
+            if (c=="chalice") {return}
+            c.body.setCircle(c.width*.9/2)
+            c.body.offset.setTo(.1*c.width,.1*c.height)
+            //c.body.width = c.width*.9;c.body.height = c.height*.8
+            //c.body.offset.setTo(.1*c.width/2,.2*C.height/2)
+        })
     })
 }
 level.finishLevel = function(sprite, tile) {
@@ -180,6 +187,8 @@ level.update = _ => {
     //= Warping ========|
     if (nanthy.sprite.y < -32) {nanthy.sprite.y = game.world.height + 32/2}
     if (nanthy.sprite.y > game.world.height + 32) {nanthy.sprite.y = -32/2}
+    //= Terminal ========|
+    nanthy.sprite.body.velocity.y = Math.min(nanthy.sprite.body.velocity.y,400)
 }
 
 level.ensureDirection = function(dir){
@@ -200,7 +209,7 @@ level.jetControls = function(){
 }
 level.movementControls = function(){
     const floored = nanthy.sprite.body.onFloor()
-    const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150}
+    const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150, jump: 320}
 
     if (cursors.left.isDown){
         level.ensureDirection("left")
@@ -225,7 +234,7 @@ level.movementControls = function(){
     if (cursors.up.isDown){
         nanthy.sprite.animations.play('jump', 20, true)
         if (floored){
-            nanthy.sprite.body.velocity.y = -320
+            nanthy.sprite.body.velocity.y = -velocities.jump
             nanthy.doNothing = false
         }
     }
@@ -244,6 +253,7 @@ level.movementControls = function(){
 level.render = _ => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
     //game.debug.body(nanthy.sprite)
+    animate.fire.children.forEach(e => game.debug.body(e))
 }
 var game = new Phaser.Game(608,320, Phaser.AUTO, 'game', undefined, true)
 game.state.add("Level", level)
