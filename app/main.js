@@ -93,8 +93,8 @@ level.create = _ => {
     nanthy.resetMe()
     
     //= Bullets ==============================|
-    gun = gun || game.add.weapon(2,'bullet')
-    gun.fireRate = 2;gun.fireAngle = 0;gun.bulletSpeed = 300
+    gun = game.add.weapon(2,'bullet')
+    gun.fireRate = 500;gun.fireAngle = 0;gun.bulletSpeed = 300
     gun.bulletGravity.y = -game.physics.arcade.gravity.y
     gun.bulletKillType = Phaser.Weapon.KILL_CAMERA_BOUNDS
     //= Texts ==============================|
@@ -153,6 +153,7 @@ level.addValue = s => function(sprite, tile) {
     console.log("Points",this.score)
 }
 level.shootGun = function() {
+    if (!nanthy.gun) {return}
     gun.fireFrom.setTo(nanthy.sprite.x, nanthy.sprite.y - 8);
     gun.fireAngle = nanthy.direction==="right"?0:180
     gun.fire()
