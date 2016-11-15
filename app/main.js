@@ -128,8 +128,8 @@ level.initiateElementAnimations = _ => {
         animate[k].children.forEach(c => setTimeout(_ => c.animations.play('an'), Math.random()*70))
         animate[k].children.forEach(c => {
             if (c=="chalice") {return}
-            c.body.setCircle(c.width*.9/2)
-            c.body.offset.setTo(.1*c.width,.1*c.height)
+            c.body.setCircle(c.width*.8/2)
+            c.body.offset.setTo(.2*c.width,.2*c.height)
             //c.body.width = c.width*.9;c.body.height = c.height*.8
             //c.body.offset.setTo(.1*c.width/2,.2*C.height/2)
         })
