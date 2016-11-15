@@ -130,8 +130,6 @@ level.initiateElementAnimations = _ => {
             if (c=="chalice") {return}
             c.body.setCircle(c.width*.8/2)
             c.body.offset.setTo(.2*c.width,.2*c.height)
-            //c.body.width = c.width*.9;c.body.height = c.height*.8
-            //c.body.offset.setTo(.1*c.width/2,.2*C.height/2)
         })
     })
 }
@@ -146,7 +144,6 @@ level.died = function(sprite, tile) {
 level.gotGun = function(...a) {nanthy.hasGun = true;this.addValue().bind(this)(...a)}
 level.gotJetpack = function(...a) {nanthy.hasJet = true;this.addValue().bind(this)(...a)}
 level.gotKey = function(sprite, tile) {
-    console.log("Key",sprite,tile)
     gong.play()
     tile.destroy()
     this.hasKey = true
@@ -157,10 +154,9 @@ level.addValue = s => function(sprite, tile) {
     this.score+=s||0
     tile && map.removeTile(tile.x, tile.y, layer).destroy();
     level.scoreText.setText(`Score: ${this.score}`)
-    console.log("Points",this.score)
 }
 level.toggleJetpack = function() {
-    if (!nanthy.hasJet || this.game.time.time < this._nextToggle_jet) {return}
+    if (!(nanthy.hasJet && this.game.time.time < this._nextToggle_jet)) {return}
     this._nextToggle_jet = this.game.time.time + 300
     nanthy.jet = !nanthy.jet
 }
