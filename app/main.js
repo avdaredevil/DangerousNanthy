@@ -20,7 +20,7 @@ level.preload = _ => {
   game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', '../assets/items2.png')
   game.load.image('bullet', '../assets/bullet.png')
-  game.load.spritesheet('nanthy', '../assets/Dave.png', 32, 32, 7)
+  game.load.spritesheet('nanthy', '../assets/Dave.png', 36, 32)
   game.load.spritesheet('electricity', '../assets/electricity.png', 32, 32)
   game.load.spritesheet('water', '../assets/water.png', 32, 32)
   game.load.spritesheet('fire', '../assets/fire.png', 32, 32)
@@ -72,7 +72,6 @@ level.create = _ => {
     nanthy.sprite.scale.setTo(0.91, 0.91)
     nanthy.sprite.anchor.x=0.5
     nanthy.sprite.anchor.y=0.5
-    nanthy.sprite.animations.add('walk')
 
     game.physics.enable(nanthy.sprite)
     game.physics.arcade.gravity.y = 700
@@ -85,9 +84,10 @@ level.create = _ => {
 
     //nanthy.sprite.body.acceleration.x = 120;
 
-    nanthy.sprite.animations.add('left', [2,4,5], 10, true)
+    nanthy.sprite.animations.add('left', [1,2,3,2], 15, true)
     nanthy.sprite.animations.add('wait', [0], 10, true)
-    nanthy.sprite.animations.add('jump', [6], 10, true)
+    nanthy.sprite.animations.add('jetpack', [5], 10, true)
+    nanthy.sprite.animations.add('jump', [4], 10, true)
 
     nanthy.sprite.body.fixedRotation = true
     nanthy.resetMe()
@@ -154,8 +154,8 @@ level.addValue = s => function(sprite, tile) {
 }
 level.shootGun = function() {
     if (!nanthy.gun) {return}
-    gun.fireFrom.setTo(nanthy.sprite.x, nanthy.sprite.y - 8);
     gun.fireAngle = nanthy.direction==="right"?0:180
+    gun.fireFrom.setTo(nanthy.sprite.x+(gun.fireAngle?-1:1)*8, nanthy.sprite.y - 8);
     gun.fire()
 }
 level.update = _ => {
@@ -196,10 +196,12 @@ level.update = _ => {
         nanthy.sprite.body.velocity.x = Math.min(nanthy.sprite.body.velocity.x,velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
     }
-    if (cursors.up.isDown && floored){
-        nanthy.sprite.body.velocity.y = -320
+    if (cursors.up.isDown){
         nanthy.sprite.animations.play('jump', 20, true)
-        nanthy.doNothing = false
+        if (floored){
+            nanthy.sprite.body.velocity.y = -320
+            nanthy.doNothing = false
+        }
     }
     if(nanthy.doNothing){
         if(nanthy.sprite.body.velocity.x>20){
