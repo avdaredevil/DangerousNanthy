@@ -10,7 +10,7 @@ const nanthy = {
         nanthy.sprite.x = layer.position.x+32*2+nanthy.sprite.width/2
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
-        level.hasKey=nanthy.gun=nanthy.jet=false
+        level.hasKey=nanthy.hasGun=nanthy.hasJet=false
     }
 }, level = {}
 
@@ -136,8 +136,8 @@ level.finishLevel = function(sprite, tile) {
 level.died = function(sprite, tile) {
     console.log("Died")
 }
-level.gotGun = function(...a) {nanthy.gun = true;this.addValue().bind(this)(...a)}
-level.gotJetpack = function(...a) {nanthy.jet = true;this.addValue().bind(this)(...a)}
+level.gotGun = function(...a) {nanthy.hasGun = true;this.addValue().bind(this)(...a)}
+level.gotJetpack = function(...a) {nanthy.hasJet = true;this.addValue().bind(this)(...a)}
 level.gotKey = function(sprite, tile) {
     console.log("Key",sprite,tile)
     gong.play()
@@ -152,8 +152,13 @@ level.addValue = s => function(sprite, tile) {
     level.scoreText.setText(`Score: ${this.score}`)
     console.log("Points",this.score)
 }
+level.toggleJetpack = function() {
+    if (!nanthy.hasJet || this.game.time.time < this._nextToggle_jet) {return}
+    this._nextToggle_jet = this.game.time.time + 300
+    nanthy.jet = !nanthy.jet
+}
 level.shootGun = function() {
-    if (!nanthy.gun) {return}
+    if (!nanthy.hasGun) {return}
     gun.fireAngle = nanthy.direction==="right"?0:180
     gun.fireFrom.setTo(nanthy.sprite.x+(gun.fireAngle?-1:1)*8, nanthy.sprite.y - 8);
     gun.fire()
@@ -165,16 +170,36 @@ level.update = _ => {
     ar.overlap(nanthy.sprite, animate.water, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.electricity, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.chalice, level.gotKey, null, level);
-    nanthy.doNothing = true;const floored = nanthy.sprite.body.onFloor()
+    nanthy.doNothing = true
+    
+    if (buttons.gun.isDown){level.shootGun.bind(level)()}
+    if (buttons.jet.isDown){level.toggleJetpack.bind(level)()}
+    if (nanthy.hasJet && nanthy.jet) {level.jetControls.bind(level)()}
+    else {level.movementControls.bind(level)()}
+}
+
+level.ensureDirection = function(dir){
+    if (nanthy.direction==dir) {return}
+    if (nanthy.direction=="left" && nanthy.sprite.scale.x > 0) {nanthy.sprite.scale.x*=-1} //Calibrate
+    nanthy.sprite.scale.x *= -1;nanthy.direction = dir
+}
+
+level.jetControls = function(){
+    nanthy.sprite.animations.play('jetpack', 10, true)
+    const velocities = {jet: 150}, delta = {x:0,y:0}
+    if (cursors.left.isDown) {level.ensureDirection("left");delta.x-=velocities.jet}
+    else if (cursors.right.isDown) {level.ensureDirection("right");delta.x+=velocities.jet}
+    if (cursors.up.isDown) {delta.y-=velocities.jet}
+    else if (cursors.down.isDown) {delta.y+=velocities.jet}
+    nanthy.sprite.body.velocity.x=delta.x
+    nanthy.sprite.body.velocity.y=delta.y
+}
+level.movementControls = function(){
+    const floored = nanthy.sprite.body.onFloor()
     const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150}
 
-    if (buttons.gun.isDown){level.shootGun.bind(level)()}
     if (cursors.left.isDown){
-        //nanthy.sprite.body.acceleration.x = -120;
-        if(nanthy.direction!='left'){
-            nanthy.sprite.scale.x *= -1
-            nanthy.direction = 'left'
-        }
+        level.ensureDirection("left")
         if(nanthy.sprite.body.velocity.x==0 ||
             (nanthy.sprite.animations.currentAnim.name!='left' && floored)){
             nanthy.sprite.animations.play('left', 10, true)
@@ -184,10 +209,7 @@ level.update = _ => {
         nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
     } else if (cursors.right.isDown){
-        if(nanthy.direction!='right'){
-            nanthy.sprite.scale.x *= -1
-            nanthy.direction = 'right'
-        }
+        level.ensureDirection("right")
         if(nanthy.sprite.body.velocity.x==0 ||
             (nanthy.sprite.animations.currentAnim.name!='left' && floored)){
             nanthy.sprite.animations.play('left', 10, true)
@@ -205,18 +227,13 @@ level.update = _ => {
     }
     if(nanthy.doNothing){
         if(nanthy.sprite.body.velocity.x>20){
-            //nanthy.sprite.body.acceleration.x = 10;
             nanthy.sprite.body.velocity.x -= 20
         }else if(nanthy.sprite.body.velocity.x<-20){
-            //nanthy.sprite.body.acceleration.x = -10;
             nanthy.sprite.body.velocity.x += 20
         }else{
-            //nanthy.sprite.body.acceleration.x = 0;
             nanthy.sprite.body.velocity.x = 0
         }
-        if(nanthy.sprite.body.onFloor()){
-            nanthy.sprite.animations.play('wait', 20, true)
-        }
+        if(floored){nanthy.sprite.animations.play('wait', 20, true)}
     }
 }
 
