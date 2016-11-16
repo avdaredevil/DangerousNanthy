@@ -157,7 +157,7 @@ level.addValue = s => function(sprite, tile) {
     level.scoreText.setText(`Score: ${this.score}`)
 }
 level.toggleJetpack = function() {
-    if (!(nanthy.hasJet && this.game.time.time < this._nextToggle_jet)) {return}
+    if (nanthy.hasJet && this._nextToggle_jet && this.game.time.time >= this._nextToggle_jet)) {return}
     this._nextToggle_jet = this.game.time.time + 300
     nanthy.jet = !nanthy.jet
 }
@@ -249,7 +249,7 @@ level.movementControls = function(){
 level.render = _ => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
     //game.debug.body(nanthy.sprite)
-    animate.fire.children.forEach(e => game.debug.body(e))
+    //animate.fire.children.forEach(e => game.debug.body(e))
 }
 var game = new Phaser.Game(608,320+10*2, Phaser.AUTO, 'game', undefined, true)
 game.state.add("Level", level)
