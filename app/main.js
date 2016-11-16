@@ -10,7 +10,7 @@ const nanthy = {
         nanthy.sprite.x = layer.position.x+32*2+nanthy.sprite.width/2
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
-        level.hasKey=nanthy.hasGun=nanthy.hasJet=false
+        level.hasKey=nanthy.hasGun=nanthy.hasJet=nanthy.jet=false
     }
 }, level = {}
 
@@ -87,7 +87,7 @@ level.create = _ => {
 
     nanthy.sprite.animations.add('left', [1,2,3,2], 15, true)
     nanthy.sprite.animations.add('wait', [0], 10, true)
-    nanthy.sprite.animations.add('jetpack', [5], 10, true)
+    nanthy.sprite.animations.add('jetpack', [5,6], 10, true)
     nanthy.sprite.animations.add('jump', [4], 10, true)
 
     nanthy.sprite.body.fixedRotation = true
@@ -130,8 +130,11 @@ level.initiateElementAnimations = _ => {
         animate[k].children.forEach(c => setTimeout(_ => c.animations.play('an'), Math.random()*70))
         animate[k].children.forEach(c => {
             if (c=="chalice") {return}
-            c.body.setCircle(c.width*.8/2)
-            c.body.offset.setTo(.2*c.width,.2*c.height)
+            const bodySize = s => ({fire: c.width*.8/2})[s] || c.width*.9/2
+            const offset = s => ({fire: [c.width*.2/2+1,c.width*.2/.8]})[s] || [c.width*.1/2,c.height*.1/2]
+            c.body.setCircle(bodySize(k))
+            c.body.offset.setTo(...offset(k))
+            
         })
     })
 }
@@ -158,7 +161,7 @@ level.addValue = s => function(sprite, tile) {
     level.scoreText.setText(`Score: ${this.score}`)
 }
 level.toggleJetpack = function() {
-    if (nanthy.hasJet && this._nextToggle_jet && this.game.time.time < this._nextToggle_jet) {return}
+    if (!nanthy.hasJet || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
     this._nextToggle_jet = this.game.time.time + 300
     nanthy.jet = !nanthy.jet
     if (nanthy.jet) {
@@ -254,6 +257,7 @@ level.render = _ => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
     //game.debug.body(nanthy.sprite)
     //animate.fire.children.forEach(e => game.debug.body(e))
+    //animate.water.children.forEach(e => game.debug.body(e))
 }
 var game = new Phaser.Game(608,320+10*2, Phaser.AUTO, 'game', undefined, true)
 game.state.add("Level", level)
