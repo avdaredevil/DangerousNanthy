@@ -92,7 +92,8 @@ level.create = _ => {
 
     nanthy.sprite.body.fixedRotation = true
     nanthy.resetMe()
-    
+    nanthy.tweener = game.add.tween(nanthy.sprite.position).to({y: "+2"}, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true)
+    nanthy.tweener.stop()
     //= Bullets ==============================|
     gun = game.add.weapon(2,'bullet')
     gun.fireRate = 500;gun.fireAngle = 0;gun.bulletSpeed = 300
@@ -157,9 +158,12 @@ level.addValue = s => function(sprite, tile) {
     level.scoreText.setText(`Score: ${this.score}`)
 }
 level.toggleJetpack = function() {
-    if (nanthy.hasJet && this._nextToggle_jet && this.game.time.time >= this._nextToggle_jet)) {return}
+    if (nanthy.hasJet && this._nextToggle_jet && this.game.time.time < this._nextToggle_jet) {return}
     this._nextToggle_jet = this.game.time.time + 300
     nanthy.jet = !nanthy.jet
+    if (nanthy.jet) {
+        nanthy.tweener.start()
+    } else {nanthy.tweener && nanthy.tweener.stop()}
 }
 level.shootGun = function() {
     if (!nanthy.hasGun) {return}
