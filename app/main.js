@@ -87,7 +87,7 @@ level.create = _ => {
 
     nanthy.sprite.animations.add('left', [1,2,3,2], 15, true)
     nanthy.sprite.animations.add('wait', [0], 10, true)
-    nanthy.sprite.animations.add('jetpack', [5,6], 10, true)
+    nanthy.sprite.animations.add('jetpack', [5,6,7], 10, true)
     nanthy.sprite.animations.add('jump', [4], 10, true)
 
     nanthy.sprite.body.fixedRotation = true
