@@ -1,4 +1,11 @@
-
+//TODO: Level 5 triangular bodies for slanted blocks
+//TODO: Die animation for Nanthy
+//TODO: Enemies in all levels swapped with the Cloud Sprite
+//TODO: Gun bullet collisions
+//TODO: Climb Animation link with climbable block [Tree leaves/Trunks, Stars]
+//TODO: Sound effect when point-valued blocks are collected
+//TODO: Jetpack ammo
+//TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
 
 const nanthy = {
@@ -40,9 +47,7 @@ level.create = _ => {
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
     map.setCollisionBetween(14, 16)
-    map.setCollisionBetween(21, 22)
     map.setCollisionBetween(27, 28)
-    //map.setCollisionByIndex(10)
     map.setCollisionByIndex(23)
     map.setCollisionByIndex(34)
     map.setCollisionByIndex(39)
@@ -53,13 +58,13 @@ level.create = _ => {
     map.setTileIndexCallback(3, level.gotJetpack, level);
     map.setTileIndexCallback(13, level.gotGun, level);
     map.setTileIndexCallback(19, level.gotKey, level);
+    map.setTileIndexCallback(10, level.finishLevel, level);
     map.setTileIndexCallback(5, level.addValue(50), level);
     map.setTileIndexCallback(11, level.addValue(100), level);
     map.setTileIndexCallback(12, level.addValue(150), level);
     map.setTileIndexCallback(26, level.addValue(200), level);
     map.setTileIndexCallback(24, level.addValue(300), level);
     map.setTileIndexCallback(25, level.addValue(500), level);
-    map.setTileIndexCallback(10, level.finishLevel, level);
     level.score = game.score
     animate = {};["fire","electricity","water","chalice"].forEach(i => {animate[i] = game.add.group()});
     Object.keys(animate).forEach(k => {
