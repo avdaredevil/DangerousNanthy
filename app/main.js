@@ -166,14 +166,18 @@ level.gotKey = function(sprite, tile) {
     gong.play()
     tile.destroy()
     this.hasKey = true
-    this.addValue(1000).bind(this)()
+    this.addScore(1000)
 }
-level.addValue = s => function(sprite, tile) {
-    if (!isNanthy(sprite)){return}
-    if(isNaN(this.score)) {this.score=0}
-    this.score+=s||0
-    tile && map.removeTile(tile.x, tile.y, layer).destroy();
+level.addScore = (function(s) {this.setScore(this.score+(s||0))}).bind(level)
+level.setScore = (function(s) {
+    this.score=s||0
+    if(isNaN(this.score)) {this.score = 0}
     level.scoreText.setText(`Score: ${this.score}`)
+}).bind(level)
+level.addValue = s => function(sprite, tile) {
+    if (sprite && !isNanthy(sprite)){return}
+    this.addScore(s)
+    tile && map.removeTile(tile.x, tile.y, layer).destroy();
 }
 level.toggleJetpack = function() {
     if (!nanthy.hasJet || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
