@@ -7,7 +7,7 @@
 //TODO: Jetpack ammo
 //TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
-
+const isNanthy = s => s==nanthy.sprite
 const nanthy = {
     sprite: undefined,
     direction: 'right',
@@ -55,6 +55,7 @@ level.create = _ => {
     map.setCollisionByIndex(18)
     map.setCollisionByIndex(40)
     // All id's are incremented by 1
+    ;[14,15,16,17,18,23,27,28,39,40].forEach(i => map.setTileIndexCallback(i, level.bulletKill, level));
     map.setTileIndexCallback(3, level.gotJetpack, level);
     map.setTileIndexCallback(13, level.gotGun, level);
     map.setTileIndexCallback(19, level.gotKey, level);
@@ -145,22 +146,30 @@ level.initiateElementAnimations = _ => {
     })
 }
 level.finishLevel = function(sprite, tile) {
-    if (!this.hasKey) {return false}
+    if (!isNanthy(sprite) || !this.hasKey) {return false}
     game.score+=this.score+2000;game.level++
     game.state.start("Level")
 }
+level.bulletKill = function(sprite, tile) {
+    if (isNanthy(sprite)){return true}
+    sprite.kill()
+    return true
+}
 level.died = function(sprite, tile) {
+    if (!isNanthy(sprite)){return}
     console.log("Died")
 }
-level.gotGun = function(...a) {nanthy.hasGun = true;this.addValue().bind(this)(...a)}
-level.gotJetpack = function(...a) {nanthy.hasJet = true;this.addValue().bind(this)(...a)}
+level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.addValue().bind(this)(...a)}
+level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.addValue().bind(this)(...a)}
 level.gotKey = function(sprite, tile) {
+    if (!isNanthy(sprite)){return}
     gong.play()
     tile.destroy()
     this.hasKey = true
     this.addValue(1000).bind(this)()
 }
 level.addValue = s => function(sprite, tile) {
+    if (!isNanthy(sprite)){return}
     if(isNaN(this.score)) {this.score=0}
     this.score+=s||0
     tile && map.removeTile(tile.x, tile.y, layer).destroy();
@@ -183,6 +192,7 @@ level.shootGun = function() {
 level.update = _ => {
     const ar = game.physics.arcade
     ar.collide(nanthy.sprite, layer)
+    ar.collide(gun.bullets, layer)
     ar.overlap(nanthy.sprite, animate.fire, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.water, level.died, null, level);
     ar.overlap(nanthy.sprite, animate.electricity, level.died, null, level);
