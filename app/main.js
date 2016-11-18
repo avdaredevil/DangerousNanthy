@@ -146,7 +146,7 @@ level.initiateElementAnimations = _ => {
             const offset = s => ({fire: [c.width*.2/2+1,c.width*.2/.8]})[s] || [c.width*.1/2,c.height*.1/2]
             c.body.setCircle(bodySize(k))
             c.body.offset.setTo(...offset(k))
-            
+
         })
     })
 }
@@ -163,6 +163,12 @@ level.bulletKill = function(sprite, tile) {
 level.died = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     console.log("Died")
+    sprite.kill()
+    sprite = this.game.add.sprite(sprite.x,sprite.y,"fire")
+    sprite.anchor.setTo(0.5,0.5)
+    sprite.animations.add("fire",[0, 1, 2, 3])
+    sprite.animations.play("fire",2,false, false)
+    sprite.animations.currentAnim.onComplete.add( _ => {game.state.start("Level")}, this)
 }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
