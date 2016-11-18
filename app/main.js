@@ -1,7 +1,6 @@
 //TODO: Level 5 triangular bodies for slanted blocks
 //TODO: Die animation for Nanthy
 //TODO: Enemies in all levels swapped with the Cloud Sprite
-//TODO: Gun bullet collisions
 //TODO: Climb Animation link with climbable block [Tree leaves/Trunks, Stars]
 //TODO: Sound effect when point-valued blocks are collected
 //TODO: Jetpack ammo
