@@ -164,10 +164,10 @@ level.died = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     console.log("Died")
     sprite.kill()
-    sprite = this.game.add.sprite(sprite.x,sprite.y,"fire")
+    sprite = this.game.add.sprite(sprite.x, sprite.y, "fire")
     sprite.anchor.setTo(0.5,0.5)
-    sprite.animations.add("fire",[0, 1, 2, 3])
-    sprite.animations.play("fire",2,false, false)
+    sprite.animations.add("fire", [0, 1, 2, 3], 2, false)
+    sprite.animations.play("fire")
     sprite.animations.currentAnim.onComplete.add( _ => {game.state.start("Level")}, this)
 }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
@@ -192,7 +192,7 @@ level.addValue = s => function(sprite, tile) {
     this.clearTile(tile)
 }
 level.toggleJetpack = function() {
-    if (!nanthy.hasJet || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
+    if (!nanthy.hasJet || !nanthy.sprite.alive || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
     this._nextToggle_jet = this.game.time.time + 300
     nanthy.jet = !nanthy.jet
     if (nanthy.jet) {
@@ -200,7 +200,7 @@ level.toggleJetpack = function() {
     } else {nanthy.tweener && nanthy.tweener.stop()}
 }
 level.shootGun = function() {
-    if (!nanthy.hasGun) {return}
+    if (!nanthy.hasGun || !nanthy.sprite.alive) {return}
     gun.fireAngle = nanthy.direction==="right"?0:180
     gun.fireFrom.setTo(nanthy.sprite.x+(gun.fireAngle?-1:1)*8, nanthy.sprite.y - 8);
     gun.fire()
