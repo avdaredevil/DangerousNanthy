@@ -165,8 +165,8 @@ level.died = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     console.log("Died")
 }
-level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.addValue().bind(this)(...a)}
-level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.addValue().bind(this)(...a)}
+level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
+level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     gong.play()
@@ -174,6 +174,7 @@ level.gotKey = function(sprite, tile) {
     this.hasKey = true
     this.addScore(1000)
 }
+level.clearTile = (function(t) {t && map.removeTile(t.x, t.y, layer).destroy()}).bind(level)
 level.addScore = (function(s) {this.setScore(this.score+(s||0))}).bind(level)
 level.setScore = (function(s) {
     this.score=s||0
@@ -183,7 +184,7 @@ level.setScore = (function(s) {
 level.addValue = s => function(sprite, tile) {
     if (sprite && !isNanthy(sprite)){return}
     this.addScore(s)
-    tile && map.removeTile(tile.x, tile.y, layer).destroy();
+    this.clearTile(tile)
 }
 level.toggleJetpack = function() {
     if (!nanthy.hasJet || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
