@@ -14,8 +14,8 @@ const nanthy = {
     direction: 'right',
     doNothing: true,
     resetMe: d => {
-        const {x:s_x,y:s_y} = d?d.spawn:{x:2,y:9}
-        nanthy.sprite.y = layer.position.y+game.world.height/10*s_y-nanthy.sprite.height/2
+        const {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
+        nanthy.sprite.y = layer.position.y+game.world.height/10*(s_y+1)-nanthy.sprite.height/2
         nanthy.sprite.x = layer.position.x+BLOCK_SZ*s_x+nanthy.sprite.width/2
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
