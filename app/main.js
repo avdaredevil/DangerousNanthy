@@ -12,7 +12,8 @@ const nanthy = {
     sprite: undefined,
     direction: 'right',
     doNothing: true,
-    resetMe: _ => {
+    resetMe: d => {
+        const {x:s_x,y:s_y} = d?d.spawn:{x:2,y:9}
         nanthy.sprite.y = layer.position.y+320/10*9-nanthy.sprite.height/2
         nanthy.sprite.x = layer.position.x+32*2+nanthy.sprite.width/2
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
@@ -24,6 +25,7 @@ const nanthy = {
 var gong, music
 
 level.preload = _ => {
+  game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
   game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', '../assets/items2.png')
   game.load.image('bullet', '../assets/bullet.png')
@@ -46,6 +48,10 @@ level.create = _ => {
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
+    //= Level Inits ========================|
+    level.score = game.score
+    level.data = game.cache.getJSON('levelData')
+    //= Collisions =========================|
     map.setCollisionBetween(14, 16)
     map.setCollisionBetween(27, 28)
     map.setCollisionByIndex(23)
@@ -66,7 +72,6 @@ level.create = _ => {
     map.setTileIndexCallback(26, level.addValue(200), level);
     map.setTileIndexCallback(24, level.addValue(300), level);
     map.setTileIndexCallback(25, level.addValue(500), level);
-    level.score = game.score
     animate = {};["fire","electricity","water","chalice"].forEach(i => {animate[i] = game.add.group()});
     Object.keys(animate).forEach(k => {
         const lookup = {chalice: 19, fire: 2, electricity: 41, water: 35}
@@ -98,7 +103,7 @@ level.create = _ => {
     nanthy.sprite.animations.add('climb', [8,9,10,9], 10, true)
 
     nanthy.sprite.body.fixedRotation = true
-    nanthy.resetMe()
+    nanthy.resetMe(level.data)
     nanthy.tweener = game.add.tween(nanthy.sprite.position).to({y: "+2"}, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true)
     nanthy.tweener.stop()
     //= Bullets ==============================|
