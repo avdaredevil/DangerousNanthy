@@ -7,6 +7,7 @@
 //TODO: Jetpack ammo
 //TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
+const BLOCK_SZ = 32
 const isNanthy = s => s==nanthy.sprite
 const nanthy = {
     sprite: undefined,
@@ -14,8 +15,8 @@ const nanthy = {
     doNothing: true,
     resetMe: d => {
         const {x:s_x,y:s_y} = d?d.spawn:{x:2,y:9}
-        nanthy.sprite.y = layer.position.y+320/10*9-nanthy.sprite.height/2
-        nanthy.sprite.x = layer.position.x+32*2+nanthy.sprite.width/2
+        nanthy.sprite.y = layer.position.y+game.world.height/10*s_y-nanthy.sprite.height/2
+        nanthy.sprite.x = layer.position.x+BLOCK_SZ*s_x+nanthy.sprite.width/2
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
         level.hasKey=nanthy.hasGun=nanthy.hasJet=nanthy.jet=false
@@ -29,11 +30,11 @@ level.preload = _ => {
   game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', '../assets/items2.png')
   game.load.image('bullet', '../assets/bullet.png')
-  game.load.spritesheet('nanthy', '../assets/Dave.png', 36, 32)
-  game.load.spritesheet('electricity', '../assets/electricity.png', 32, 32)
-  game.load.spritesheet('water', '../assets/water.png', 32, 32)
-  game.load.spritesheet('fire', '../assets/fire.png', 32, 32)
-  game.load.spritesheet('chalice', '../assets/chalice.png', 32, 32)
+  game.load.spritesheet('nanthy', '../assets/Dave.png', 36, BLOCK_SZ)
+  game.load.spritesheet('electricity', '../assets/electricity.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
   game.load.audio('gong', '../assets/gong.mp3')
   game.load.audio('music', '../assets/02 Underclocked.mp3')
 }
