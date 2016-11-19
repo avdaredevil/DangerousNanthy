@@ -18,7 +18,7 @@ const nanthy = {
         nanthy.sprite.reset(xc,yc)
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
-        ;[10,100,1000].forEach(t => sleep(t).then(_=>{nanthy.sprite.body.width = nanthy.sprite.width/3}));
+        ;[10,100,1000].forEach(t => sleep(t).then(_=>{nanthy.sprite.body.width = Math.abs(nanthy.sprite.width/3)}));
         //properties, duration, ease, autoStart, delay, 4, yoyo
         level.bornTween && level.bornTween.stop()
         level.bornTween = game.add.tween(nanthy.sprite).to({alpha: 0}, 400, Phaser.Easing.Bounce.InOut, true, 0, -1, true)
