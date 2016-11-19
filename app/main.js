@@ -1,5 +1,4 @@
 //TODO: Level 5 triangular bodies for slanted blocks
-//TODO: Die animation for Nanthy
 //TODO: Enemies in all levels swapped with the Cloud Sprite
 //TODO: Climb Animation link with climbable block [Tree leaves/Trunks, Stars]
 //TODO: Sound effect when point-valued blocks are collected
@@ -310,7 +309,7 @@ level.movementControls = function(){
 
 level.render = _ => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
-    game.debug.body(nanthy.sprite)
+    //game.debug.body(nanthy.sprite)
     //animate.fire.children.forEach(e => game.debug.body(e))
     //animate.water.children.forEach(e => game.debug.body(e))
 }
