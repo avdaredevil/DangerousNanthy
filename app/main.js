@@ -15,8 +15,7 @@ const nanthy = {
     respawn: _ => {
         const d = level.data, {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
         const yc = layer.position.y+game.world.height/10*(s_y+1)-nanthy.sprite.height/2,
-            xc = layer.position.x+BLOCK_SZ*s_x+nanthy.sprite.width/2
-        game.camera.x = 0
+            xc = BLOCK_SZ*s_x+nanthy.sprite.width/2
         nanthy.sprite.reset(xc,yc)
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
@@ -124,7 +123,7 @@ level.create = _ => {
     level.scoreText.fixedToCamera = true
     //level.text.position.y = (50-level.text.height)/2
     //nanthy.sprite.body.onBeginContact.add(blockHit, this);
-
+    
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
@@ -177,7 +176,7 @@ level.died = function(sprite, tile) {
     sprite.animations.currentAnim.onComplete.add(_ => {
         this.gamePaused = true
         nanthy.respawn()
-        sleep(200).then(sprite.destroy)
+        sleep(200).then(_ => sprite.destroy())
     }, this)
 }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
