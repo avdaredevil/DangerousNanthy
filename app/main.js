@@ -20,8 +20,19 @@ const nanthy = {
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
         nanthy.sprite.body.width = nanthy.sprite.width/3
+        //properties, duration, ease, autoStart, delay, 4, yoyo
+        level.bornTween = game.add.tween(nanthy.sprite).to({alpha: 0}, 400, Phaser.Easing.Bounce.InOut, true, 0, -1, true)
+        level.bornTween.start()
+        nanthy.sprite.body.moves = !(level.gameInit = true)
+        nanthy.sprite.animations.play('wait', 20, true)
+    },
+    unInit: _ => {
+        nanthy.sprite.body.moves = !(level.gameInit = false)
+        level.bornTween && level.bornTween.stop()
+        nanthy.sprite.alpha=1
     },
     resetMe: _ => {
+        nanthy.bornTween && nanthy.bornTween
         nanthy.respawn()
         level.hasKey=nanthy.hasGun=nanthy.hasJet=nanthy.jet=false
     }
@@ -157,6 +168,7 @@ level.initiateElementAnimations = _ => {
 }
 level.finishLevel = function(sprite, tile) {
     if (!isNanthy(sprite) || !this.hasKey) {return false}
+    level.bornTween = ""
     game.score+=this.score+2000;game.level++
     game.state.start("Level")
 }
@@ -174,7 +186,6 @@ level.died = function(sprite, tile) {
     sprite.animations.add("fire", [0, 1, 2, 3], 2, false)
     sprite.animations.play("fire")
     sprite.animations.currentAnim.onComplete.add(_ => {
-        this.gamePaused = true
         nanthy.respawn()
         sleep(200).then(_ => sprite.destroy())
     }, this)
@@ -227,7 +238,7 @@ level.update = _ => {
     if (buttons.gun.isDown){level.shootGun.bind(level)()}
     if (buttons.jet.isDown){level.toggleJetpack.bind(level)()}
     //= Movement =======|
-    if (nanthy.hasJet && nanthy.jet) {level.jetControls.bind(level)()}
+    if (nanthy.hasJet && nanthy.jet && !level.gameInit) {level.jetControls.bind(level)()}
     else {level.movementControls.bind(level)()}
     //= Warping ========|
     if (nanthy.sprite.y < -32) {nanthy.sprite.y = game.world.height + 32/2}
@@ -253,9 +264,11 @@ level.jetControls = function(){
     nanthy.sprite.body.velocity.y=delta.y-12
 }
 level.movementControls = function(){
-    const floored = nanthy.sprite.body.onFloor()
-    const velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150, jump: 320}
-    if (cursors.left.isDown){
+    const floored = nanthy.sprite.body.onFloor(),
+        velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150, jump: 320},
+        gameInit = _ => level.gameInit && nanthy.unInit()
+        
+    if (cursors.left.isDown){gameInit()
         level.ensureDirection("left")
         if(nanthy.sprite.body.velocity.x==0 ||
             (nanthy.sprite.animations.currentAnim.name!='left' && floored)){
@@ -264,7 +277,7 @@ level.movementControls = function(){
         nanthy.sprite.body.velocity.x -= velocities.rest
         nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
-    } else if (cursors.right.isDown){
+    } else if (cursors.right.isDown){gameInit()
         level.ensureDirection("right")
         if(nanthy.sprite.body.velocity.x==0 ||
             (nanthy.sprite.animations.currentAnim.name!='left' && floored)){
@@ -274,7 +287,7 @@ level.movementControls = function(){
         nanthy.sprite.body.velocity.x = Math.min(nanthy.sprite.body.velocity.x,velocities[buttons.run.isDown?"speed":"normal"])
         nanthy.doNothing = false
     }
-    if (cursors.up.isDown){
+    if (cursors.up.isDown){gameInit()
         nanthy.sprite.animations.play('jump', 20, true)
         if (floored){
             nanthy.sprite.body.velocity.y = -velocities.jump
