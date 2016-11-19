@@ -6,7 +6,7 @@
 //TODO: Jetpack ammo
 //TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
-const BLOCK_SZ = 32
+const BLOCK_SZ = 32, sleep = t => new Promise(res => setTimeout(res,t))
 const isNanthy = s => s==nanthy.sprite
 const nanthy = {
     sprite: undefined,
@@ -16,6 +16,7 @@ const nanthy = {
         const d = level.data, {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
         const yc = layer.position.y+game.world.height/10*(s_y+1)-nanthy.sprite.height/2,
             xc = layer.position.x+BLOCK_SZ*s_x+nanthy.sprite.width/2
+        game.camera.x = 0
         nanthy.sprite.reset(xc,yc)
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
@@ -176,6 +177,7 @@ level.died = function(sprite, tile) {
     sprite.animations.currentAnim.onComplete.add(_ => {
         this.gamePaused = true
         nanthy.respawn()
+        sleep(200).then(sprite.destroy)
     }, this)
 }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
