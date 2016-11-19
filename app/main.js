@@ -21,6 +21,7 @@ const nanthy = {
         nanthy.direction = "right"
         nanthy.sprite.body.width = nanthy.sprite.width/3
         //properties, duration, ease, autoStart, delay, 4, yoyo
+        level.bornTween && level.bornTween.stop()
         level.bornTween = game.add.tween(nanthy.sprite).to({alpha: 0}, 400, Phaser.Easing.Bounce.InOut, true, 0, -1, true)
         level.bornTween.start()
         nanthy.sprite.body.moves = !(level.gameInit = true)
