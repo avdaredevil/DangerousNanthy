@@ -12,12 +12,17 @@ const nanthy = {
     sprite: undefined,
     direction: 'right',
     doNothing: true,
-    resetMe: d => {
-        const {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
-        nanthy.sprite.y = layer.position.y+game.world.height/10*(s_y+1)-nanthy.sprite.height/2
-        nanthy.sprite.x = layer.position.x+BLOCK_SZ*s_x+nanthy.sprite.width/2
+    respawn: _ => {
+        const d = level.data, {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
+        const yc = layer.position.y+game.world.height/10*(s_y+1)-nanthy.sprite.height/2,
+            xc = layer.position.x+BLOCK_SZ*s_x+nanthy.sprite.width/2
+        nanthy.sprite.reset(xc,yc)
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
+        nanthy.sprite.body.width = nanthy.sprite.width/3
+    },
+    resetMe: _ => {
+        nanthy.respawn()
         level.hasKey=nanthy.hasGun=nanthy.hasJet=nanthy.jet=false
     }
 }, level = {}
@@ -89,7 +94,7 @@ level.create = _ => {
     game.physics.arcade.gravity.y = 700
     //= Nanthy ==============================|
     nanthy.sprite.body.bounce.y = 0
-    nanthy.sprite.body.width /= 3
+    nanthy.sprite.body.width = nanthy.sprite.width/3
     nanthy.sprite.body.offset.x=(nanthy.sprite.width-nanthy.sprite.body.width)/2
     nanthy.sprite.body.linearDamping = 1
     nanthy.sprite.body.collideWorldBounds = false
@@ -103,7 +108,7 @@ level.create = _ => {
     nanthy.sprite.animations.add('climb', [8,9,10,9], 10, true)
 
     nanthy.sprite.body.fixedRotation = true
-    nanthy.resetMe(level.data)
+    nanthy.resetMe()
     nanthy.tweener = game.add.tween(nanthy.sprite.position).to({y: "+2"}, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true)
     nanthy.tweener.stop()
     //= Bullets ==============================|
@@ -168,7 +173,10 @@ level.died = function(sprite, tile) {
     sprite.anchor.setTo(0.5,0.5)
     sprite.animations.add("fire", [0, 1, 2, 3], 2, false)
     sprite.animations.play("fire")
-    sprite.animations.currentAnim.onComplete.add( _ => {game.state.start("Level")}, this)
+    sprite.animations.currentAnim.onComplete.add(_ => {
+        this.gamePaused = true
+        nanthy.respawn()
+    }, this)
 }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
@@ -287,7 +295,7 @@ level.movementControls = function(){
 
 level.render = _ => {
     //game.debug.bodyInfo(nanthy.sprite, 32, 32)
-    //game.debug.body(nanthy.sprite)
+    game.debug.body(nanthy.sprite)
     //animate.fire.children.forEach(e => game.debug.body(e))
     //animate.water.children.forEach(e => game.debug.body(e))
 }
