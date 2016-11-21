@@ -171,7 +171,7 @@ level.initiateElementAnimations = _ => {
 level.finishLevel = function(sprite, tile) {
     if (!isNanthy(sprite) || !this.hasKey) {return false}
     level.bornTween = ""
-    game.score+=this.score+2000;game.level++
+    game.score=this.score+2000;game.level++
     game.state.start("Level")
 }
 level.bulletKill = function(sprite, tile) {
