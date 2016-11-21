@@ -6,7 +6,8 @@
 //TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
 const BLOCK_SZ = 32, sleep = t => new Promise(res => setTimeout(res,t))
-const isNanthy = s => s==nanthy.sprite
+const isNanthy = s => s==nanthy.sprite,
+    fmtNum = n => {const [f,l] = n.toString().split(".");return f.replace(/\B(?=(\d{3})+(?!\d))/g, ",")+(l?"."+l:'')}
 const nanthy = {
     sprite: undefined,
     direction: 'right',
@@ -130,7 +131,8 @@ level.create = _ => {
     //= Texts ==============================|
     level.text = game.add.text(0,0, "Dangerous Nanthy",{font: "32px Raleway,Arial", fill: "#23b929"})
     level.text.fixedToCamera = true
-    level.scoreText = game.add.text(400,0, `Score: ${level.score}`, {font: "32px Raleway,Arial", fill: "#23b929", boundsAlignH: "right"})
+    level.scoreText = game.add.text(400,0, ``, {font: "32px Raleway,Arial", fill: "#23b929", boundsAlignH: "right"})
+    level.setScore(level.score)
     level.scoreText.fixedToCamera = true
     //level.text.position.y = (50-level.text.height)/2
     //nanthy.sprite.body.onBeginContact.add(blockHit, this);
@@ -204,7 +206,7 @@ level.addScore = (function(s) {this.setScore(this.score+(s||0))}).bind(level)
 level.setScore = (function(s) {
     this.score=s||0
     if(isNaN(this.score)) {this.score = 0}
-    level.scoreText.setText(`Score: ${this.score}`)
+    level.scoreText.setText(`Score: ${fmtNum(this.score)}`)
 }).bind(level)
 level.addValue = s => function(sprite, tile) {
     if (sprite && !isNanthy(sprite)){return}
@@ -241,8 +243,8 @@ level.update = _ => {
     if (nanthy.hasJet && nanthy.jet && !level.gameInit) {level.jetControls.bind(level)()}
     else {level.movementControls.bind(level)()}
     //= Warping ========|
-    if (nanthy.sprite.y < -32) {nanthy.sprite.y = game.world.height + 32/2}
-    if (nanthy.sprite.y > game.world.height + 32) {nanthy.sprite.y = -32/2}
+    if (nanthy.sprite.y < -BLOCK_SZ) {nanthy.sprite.y = game.world.height + BLOCK_SZ}
+    if (nanthy.sprite.y > game.world.height + 32) {nanthy.sprite.y = -BLOCK_SZ}
     //= Terminal ========|
     nanthy.sprite.body.velocity.y = Math.min(nanthy.sprite.body.velocity.y,400)
 }
