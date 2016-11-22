@@ -1,4 +1,5 @@
 //TODO: Level 5 triangular bodies for slanted blocks
+//TODO: Extract explosion for Nanthy death animation
 //TODO: Enemies in all levels swapped with the Cloud Sprite
 //TODO: Climb Animation link with climbable block [Tree leaves/Trunks, Stars]
 //TODO: Sound effect when point-valued blocks are collected
@@ -38,7 +39,7 @@ const nanthy = {
     }
 }, level = {}
 
-var gong, music
+var gong, coin, music
 
 level.preload = _ => {
   game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
@@ -51,6 +52,7 @@ level.preload = _ => {
   game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
   game.load.audio('gong', '../assets/gong.mp3')
+  game.load.audio('coin', '../assets/coin.mp3')
   game.load.audio('music', '../assets/02 Underclocked.mp3')
 }
 
@@ -61,6 +63,7 @@ level.create = _ => {
     map = game.add.tilemap('objects')
     music = music || game.add.audio('music')
     gong = gong || game.add.audio('gong')
+    coin = coin || game.add.audio('coin')
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
@@ -82,12 +85,12 @@ level.create = _ => {
     map.setTileIndexCallback(13, level.gotGun, level);
     map.setTileIndexCallback(19, level.gotKey, level);
     map.setTileIndexCallback(10, level.finishLevel, level);
-    map.setTileIndexCallback(5, level.addValue(50), level);
-    map.setTileIndexCallback(11, level.addValue(100), level);
-    map.setTileIndexCallback(12, level.addValue(150), level);
-    map.setTileIndexCallback(26, level.addValue(200), level);
-    map.setTileIndexCallback(24, level.addValue(300), level);
-    map.setTileIndexCallback(25, level.addValue(500), level);
+    map.setTileIndexCallback(5, level.itemPickup(50), level);
+    map.setTileIndexCallback(11, level.itemPickup(100), level);
+    map.setTileIndexCallback(12, level.itemPickup(150), level);
+    map.setTileIndexCallback(26, level.itemPickup(200), level);
+    map.setTileIndexCallback(24, level.itemPickup(300), level);
+    map.setTileIndexCallback(25, level.itemPickup(500), level);
     animate = {};["fire","electricity","water","chalice"].forEach(i => {animate[i] = game.add.group()});
     Object.keys(animate).forEach(k => {
         const lookup = {chalice: 19, fire: 2, electricity: 41, water: 35}
@@ -135,7 +138,7 @@ level.create = _ => {
     level.scoreText.fixedToCamera = true
     //level.text.position.y = (50-level.text.height)/2
     //nanthy.sprite.body.onBeginContact.add(blockHit, this);
-    
+
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
@@ -191,6 +194,7 @@ level.died = function(sprite, tile) {
         sleep(200).then(_ => sprite.destroy())
     }, this)
 }
+level.itemPickup = (value) => (sprite, tile) => { if (!isNanthy(sprite)){return}; (level.addValue(value).bind(level))(sprite, tile); coin.play() }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
@@ -268,7 +272,7 @@ level.movementControls = function(){
     const floored = nanthy.sprite.body.onFloor(),
         velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150, jump: 320},
         gameInit = _ => level.gameInit && nanthy.unInit()
-        
+
     if (cursors.left.isDown){gameInit()
         level.ensureDirection("left")
         if(nanthy.sprite.body.velocity.x==0 ||
