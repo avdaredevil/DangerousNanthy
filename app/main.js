@@ -39,7 +39,7 @@ const nanthy = {
     }
 }, level = {}
 
-var gong, coinSounds = {}, music
+var gong, explosion, gunSound, coinSounds = {}, music
 
 level.preload = _ => {
   game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
@@ -51,6 +51,8 @@ level.preload = _ => {
   game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.audio('gun', '../assets/gun.mp3')
+  game.load.audio('explosion', '../assets/explosion.mp3')
   game.load.audio('gong', '../assets/gong.mp3')
   game.load.audio('coin1', '../assets/coin.mp3')
   game.load.audio('coin2', '../assets/coin-drop.mp3')
@@ -68,6 +70,8 @@ level.create = _ => {
     map = game.add.tilemap('objects')
     music = music || game.add.audio('music')
     gong = gong || game.add.audio('gong')
+    gunSound = gunSound || game.add.audio('gun')
+    explosion = explosion || game.add.audio('explosion')
     coinSounds[50] = coinSounds[50] || game.add.audio('coin1')
     coinSounds[100] = coinSounds[100] || game.add.audio('coin2')
     coinSounds[150] = coinSounds[150] || game.add.audio('coin3')
@@ -203,6 +207,7 @@ level.died = function(sprite, tile) {
         nanthy.respawn()
         sleep(200).then(_ => sprite.destroy())
     }, this)
+    explosion.play()
 }
 level.itemPickup = (value) => (sprite, tile) => { if (!isNanthy(sprite)){return}; (level.addValue(value).bind(level))(sprite, tile); coinSounds[value].play() }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
@@ -238,7 +243,7 @@ level.shootGun = function() {
     if (!nanthy.hasGun || !nanthy.sprite.alive) {return}
     gun.fireAngle = nanthy.direction==="right"?0:180
     gun.fireFrom.setTo(nanthy.sprite.x+(gun.fireAngle?-1:1)*8, nanthy.sprite.y - 8);
-    gun.fire()
+    gun.fire() && gunSound.play()
 }
 level.update = _ => {
     const ar = game.physics.arcade
