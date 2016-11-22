@@ -33,7 +33,6 @@ const nanthy = {
         nanthy.sprite.alpha=1
     },
     resetMe: _ => {
-        nanthy.bornTween && nanthy.bornTween
         nanthy.respawn()
         level.hasKey=nanthy.hasGun=nanthy.hasJet=nanthy.jet=false
     }
