@@ -39,7 +39,7 @@ const nanthy = {
     }
 }, level = {}
 
-var gong, coin, music
+var gong, coinSounds = {}, music
 
 level.preload = _ => {
   game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
@@ -52,7 +52,12 @@ level.preload = _ => {
   game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
   game.load.audio('gong', '../assets/gong.mp3')
-  game.load.audio('coin', '../assets/coin.mp3')
+  game.load.audio('coin1', '../assets/coin.mp3')
+  game.load.audio('coin2', '../assets/coin-drop.mp3')
+  game.load.audio('coin3', '../assets/glass-ping.mp3')
+  game.load.audio('coin4', '../assets/robot-blip.mp3')
+  game.load.audio('coin5', '../assets/sms-alert.mp3')
+  game.load.audio('coin6', '../assets/sms-alert.mp3')
   game.load.audio('music', '../assets/02 Underclocked.mp3')
 }
 
@@ -63,7 +68,12 @@ level.create = _ => {
     map = game.add.tilemap('objects')
     music = music || game.add.audio('music')
     gong = gong || game.add.audio('gong')
-    coin = coin || game.add.audio('coin')
+    coinSounds[50] = coinSounds[50] || game.add.audio('coin1')
+    coinSounds[100] = coinSounds[100] || game.add.audio('coin2')
+    coinSounds[150] = coinSounds[150] || game.add.audio('coin3')
+    coinSounds[200] = coinSounds[200] || game.add.audio('coin4')
+    coinSounds[300] = coinSounds[300] || game.add.audio('coin5')
+    coinSounds[500] = coinSounds[500] || game.add.audio('coin6')
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
@@ -194,7 +204,7 @@ level.died = function(sprite, tile) {
         sleep(200).then(_ => sprite.destroy())
     }, this)
 }
-level.itemPickup = (value) => (sprite, tile) => { if (!isNanthy(sprite)){return}; (level.addValue(value).bind(level))(sprite, tile); coin.play() }
+level.itemPickup = (value) => (sprite, tile) => { if (!isNanthy(sprite)){return}; (level.addValue(value).bind(level))(sprite, tile); coinSounds[value].play() }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
