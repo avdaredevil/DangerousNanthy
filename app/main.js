@@ -63,6 +63,60 @@ level.preload = _ => {
   game.load.audio('music', '../assets/02 Underclocked.mp3')
 }
 
+const BLOCKS = {
+    jet: 3,
+    gun: 13,
+    chalice: 19,
+    door: 10,
+    p: { //Points
+        gum: 5,
+        diamond: 11,
+        r_diamond: 12,
+        crown: 24,
+        wand: 25,
+        ring: 26,
+    },
+    c: { //Collisions
+        slant: {
+            bl: 14,
+            br: 15,
+            tl: 16,
+            tr: 17,
+        },
+        metal_bar: 18,
+        pipe: {down: 28, right: 27, default: "down"},
+        brown: 23,
+        ice: 34,
+        brick: {blue: 39, red: 40, default: "red"},
+    },
+    bad: { //Bad for Nanthy
+        fire: 2,
+        water: 35,
+        electricity: 41,
+    },
+    cl: { //Climbable
+        trunk: 38,
+        leaves: {
+            tl:20,
+            tr:23,
+            cnt:32,
+            bl:31,
+            br:33,
+            default: "cnt"
+        },
+    },
+    star: 36,
+    g: function(p,ObjectsOk) {
+        const ev = v => typeof v == "function"?v():v,
+            pth = p.split(".")
+        let val = pth.reduce((pr,c) => ev(pr[c])||"",this)
+        if (typeof val == "function") {val = val()}
+        else if (typeof val == "object") {val = val.default?val[val.default]:(ObjectsOk?val:null);if (!val) {console.error("[Block::Fetch] Path",p,"does not have a default value in KEY ["+pth.slice(-1)[0]+"]!");return}}
+        if (!val) {console.error("[Block::Fetch] Path",p,"is invalid!")}
+        return val
+    }
+}
+
 level.create = _ => {
     game.physics.startSystem(Phaser.Physics.ARCADE)
     game.stage.backgroundColor = '#000000'
@@ -209,7 +263,12 @@ level.died = function(sprite, tile) {
     }, this)
     explosion.play()
 }
-level.itemPickup = (value) => (sprite, tile) => { if (!isNanthy(sprite)){return}; (level.addValue(value).bind(level))(sprite, tile); coinSounds[value].play() }
+level.itemPickup = value => (sprite, tile) => {
+    console.log(tile)
+    if (!isNanthy(sprite)){return}
+    (level.addValue(value).bind(level))(sprite, tile)
+    coinSounds[value].play()
+}
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
