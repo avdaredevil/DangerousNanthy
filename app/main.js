@@ -5,10 +5,13 @@
 //TODO: Sound effect when point-valued blocks are collected
 //TODO: Jetpack ammo
 //TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
+//= GLOBALS ===============================================================|
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
+//= MACROS ================================================================|
 const BLOCK_SZ = 32, sleep = t => new Promise(res => setTimeout(res,t))
 const isNanthy = s => s==nanthy.sprite,
     fmtNum = n => {const [f,l] = n.toString().split(".");return f.replace(/\B(?=(\d{3})+(?!\d))/g, ",")+(l?"."+l:'')}
+//= OBJECTS ===============================================================|
 const nanthy = {
     sprite: undefined,
     direction: 'right',
@@ -39,22 +42,12 @@ const nanthy = {
     }
 }, level = {}
 
-const _AUDIO_LINK = [
-    ['music','../assets/02 Underclocked.mp3'],
-    ['gun','../assets/gun.mp3'],
-    ['explosion','../assets/explosion.mp3'],
-    ['gong','../assets/gong.mp3'],
-    ['coin','../assets/coin.mp3'],
-    ['coinDrop','../assets/coin-drop.mp3'],
-    ['coin3','../assets/glass-ping.mp3'],
-    ['blip','../assets/robot-blip.mp3'],
-    ['itemPick','../assets/sms-alert.mp3']
-], AUDIO = {}
 const BLOCKS = {
     jet: 3,
     gun: 13,
     chalice: 19,
     door: 10,
+    points: _ => BLOCKS.p,
     p: { //Points
         gum: 5,
         diamond: 11,
@@ -63,6 +56,7 @@ const BLOCKS = {
         wand: 25,
         ring: 26,
     },
+    collisions: _ => BLOCKS.c,
     c: { //Collisions
         slant: {
             bl: 14,
@@ -76,11 +70,14 @@ const BLOCKS = {
         ice: 34,
         brick: {blue: 39, red: 40},
     },
-    bad: { //Bad for Nanthy
+    death: _ => BLOCKS.b,
+    bad: _ => BLOCKS.b,
+    b: { //Bad for Nanthy
         fire: 2,
         water: 35,
         electricity: 41,
     },
+    climb_blocks: _ => BLOCKS.cl,
     cl: { //Climbable
         trunk: 38,
         leaves: {
@@ -94,7 +91,7 @@ const BLOCKS = {
     star: 36,
     g: function(p) {
         const ev = v => typeof v == "function"?v():v,
-            recurseVal = (v,ar) => {const a = ar||[];typeof v == "object"?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}}
+            recurseVal = (v,ar) => {const a = ar||[];typeof v == "object"?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}},
             pth = p.split(".")
         let val = pth.reduce((pr,c) => ev(pr[c])||"",this)
         if (typeof val == "function") {val = val()}
@@ -103,7 +100,35 @@ const BLOCKS = {
         return val
     }
 }
+const _AUDIO_LINK = {
+    TRACKS: [
+        ['music','../assets/02 Underclocked.mp3'],
+        ['gun','../assets/gun.mp3'],
+        ['explosion','../assets/explosion.mp3'],
+        ['gong','../assets/gong.mp3'],
+        ['coin','../assets/coin.mp3'],
+        ['coinDrop','../assets/coin-drop.mp3'],
+        ['coin3','../assets/glass-ping.mp3'],
+        ['blip','../assets/robot-blip.mp3'],
+        ['itemPick','../assets/sms-alert.mp3']
+    ],
+    _EFFECTS_LINK: {
+        coin: "points",
+        itemPick: ["jet","gun"],
+        gong: "chalice",
+        death: "explosion",
+    },
+}, AUDIO = {EFFECTS: {}}
+Object.keys(_AUDIO_LINK._EFFECTS_LINK).forEach(e => {
+    const mar = k => k instanceof Array?k:[k]
+    const v = mar(_AUDIO_LINK._EFFECTS_LINK[e])
+    v.forEach(addr => {
+        const blocks = mar(BLOCKS.g(addr))
+        blocks.forEach(tile => {AUDIO.EFFECTS[tile] = e})
+    })
+})
 
+//= GAME INIT ===========================================================|
 level.preload = _ => {
   game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
   game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
@@ -114,7 +139,7 @@ level.preload = _ => {
   game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
-  _AUDIO_LINK.forEach(i => game.load.audio(i[0], i[1]))
+  _AUDIO_LINK.TRACKS.forEach(i => game.load.audio(i[0], i[1]))
 }
 
 
@@ -123,16 +148,10 @@ level.create = _ => {
     game.stage.backgroundColor = '#000000'
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
     map = game.add.tilemap('objects')
-    _AUDIO_LINK.forEach(i => {
+    _AUDIO_LINK.TRACKS.forEach(i => {
         const k = i[0]
         AUDIO[k] = AUDIO[k] || game.add.audio(k)
     })
-    //coinSounds[50] = coinSounds[50] || game.add.audio('coin1')
-    //coinSounds[100] = coinSounds[100] || game.add.audio('coin2')
-    //coinSounds[150] = coinSounds[150] || game.add.audio('coin3')
-    //coinSounds[200] = coinSounds[200] || game.add.audio('coin4')
-    //coinSounds[300] = coinSounds[300] || game.add.audio('coin5')
-    //coinSounds[500] = coinSounds[500] || game.add.audio('coin6')
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
@@ -253,6 +272,7 @@ level.died = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     console.log("Died")
     sprite.kill()
+    level.playEffect(tile)
     sprite = this.game.add.sprite(sprite.x, sprite.y, "fire")
     sprite.anchor.setTo(0.5,0.5)
     sprite.animations.add("fire", [0, 1, 2, 3], 2, false)
@@ -261,42 +281,36 @@ level.died = function(sprite, tile) {
         nanthy.respawn()
         sleep(200).then(_ => sprite.destroy())
     }, this)
-    AUDIO.explosion.play()
 }
 level.itemPickup = value => (sprite, tile) => {
-    const Matchers = {}
-    Matchers[BLOCKS.p.gum] = "coin"
-    Matchers[BLOCKS.p.diamond] = "coin"
-    Matchers[BLOCKS.p.r_diamond] = "coin"
-    Matchers[BLOCKS.p.crown] = "coin"
-    Matchers[BLOCKS.p.wand] = "coin"
-    Matchers[BLOCKS.p.ring] = "coin"
     if (!isNanthy(sprite)){return}
-    (level.addValue(value).bind(level))(sprite, tile)
-    const track = AUDIO[Matchers[tile.index]]
-    track && track.play()
+    level.playEffect(tile)
+    level.addScore(value)
+    level.clearTile(tile)
 }
-level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
-level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
+level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.playEffect(tile);this.clearTile(tile)}
+level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.playEffect(tile);this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
-    AUDIO.gong.play()
+    console.log(tile)
+    level.playEffect(tile)
     tile.destroy()
     this.hasKey = true
     this.addScore(1000)
 }
 level.clearTile = (function(t) {t && map.removeTile(t.x, t.y, layer).destroy()}).bind(level)
+level.playEffect = t => {
+    //If is Object not tile
+    if (t.key) {t = BLOCKS[t.key]}
+    const track = AUDIO[AUDIO.EFFECTS[t.index||t]]
+    track && track.play()
+}
 level.addScore = (function(s) {this.setScore(this.score+(s||0))}).bind(level)
 level.setScore = (function(s) {
     this.score=s||0
     if(isNaN(this.score)) {this.score = 0}
     level.scoreText.setText(`Score: ${fmtNum(this.score)}`)
 }).bind(level)
-level.addValue = s => function(sprite, tile) {
-    if (sprite && !isNanthy(sprite)){return}
-    this.addScore(s)
-    this.clearTile(tile)
-}
 level.toggleJetpack = function() {
     if (!nanthy.hasJet || !nanthy.sprite.alive || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
     this._nextToggle_jet = this.game.time.time + 300
