@@ -39,30 +39,17 @@ const nanthy = {
     }
 }, level = {}
 
-var gong, explosion, gunSound, coinSounds = {}, music
-
-level.preload = _ => {
-  game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
-  game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
-  game.load.image('tiles', '../assets/items2.png')
-  game.load.image('bullet', '../assets/bullet.png')
-  game.load.spritesheet('nanthy', '../assets/Dave.png', 36, BLOCK_SZ)
-  game.load.spritesheet('electricity', '../assets/electricity.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.audio('gun', '../assets/gun.mp3')
-  game.load.audio('explosion', '../assets/explosion.mp3')
-  game.load.audio('gong', '../assets/gong.mp3')
-  game.load.audio('coin1', '../assets/coin.mp3')
-  game.load.audio('coin2', '../assets/coin-drop.mp3')
-  game.load.audio('coin3', '../assets/glass-ping.mp3')
-  game.load.audio('coin4', '../assets/robot-blip.mp3')
-  game.load.audio('coin5', '../assets/sms-alert.mp3')
-  game.load.audio('coin6', '../assets/sms-alert.mp3')
-  game.load.audio('music', '../assets/02 Underclocked.mp3')
-}
-
+const _AUDIO_LINK = [
+    ['music','../assets/02 Underclocked.mp3'],
+    ['gun','../assets/gun.mp3'],
+    ['explosion','../assets/explosion.mp3'],
+    ['gong','../assets/gong.mp3'],
+    ['coin','../assets/coin.mp3'],
+    ['coinDrop','../assets/coin-drop.mp3'],
+    ['coin3','../assets/glass-ping.mp3'],
+    ['blip','../assets/robot-blip.mp3'],
+    ['itemPick','../assets/sms-alert.mp3']
+], AUDIO = {}
 const BLOCKS = {
     jet: 3,
     gun: 13,
@@ -84,10 +71,10 @@ const BLOCKS = {
             tr: 17,
         },
         metal_bar: 18,
-        pipe: {down: 28, right: 27, default: "down"},
+        pipe: {down: 28, right: 27},
         brown: 23,
         ice: 34,
-        brick: {blue: 39, red: 40, default: "red"},
+        brick: {blue: 39, red: 40},
     },
     bad: { //Bad for Nanthy
         fire: 2,
@@ -102,36 +89,50 @@ const BLOCKS = {
             cnt:32,
             bl:31,
             br:33,
-            default: "cnt"
         },
     },
     star: 36,
-    g: function(p,ObjectsOk) {
+    g: function(p) {
         const ev = v => typeof v == "function"?v():v,
+            recurseVal = (v,ar) => {const a = ar||[];typeof v == "object"?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}}
             pth = p.split(".")
         let val = pth.reduce((pr,c) => ev(pr[c])||"",this)
         if (typeof val == "function") {val = val()}
-        else if (typeof val == "object") {val = val.default?val[val.default]:(ObjectsOk?val:null);if (!val) {console.error("[Block::Fetch] Path",p,"does not have a default value in KEY ["+pth.slice(-1)[0]+"]!");return}}
+        else if (typeof val == "object") {val = recurseVal(val)}
         if (!val) {console.error("[Block::Fetch] Path",p,"is invalid!")}
         return val
     }
 }
+
+level.preload = _ => {
+  game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
+  game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.image('tiles', '../assets/items2.png')
+  game.load.image('bullet', '../assets/bullet.png')
+  game.load.spritesheet('nanthy', '../assets/Dave.png', 36, BLOCK_SZ)
+  game.load.spritesheet('electricity', '../assets/electricity.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
+  _AUDIO_LINK.forEach(i => game.load.audio(i[0], i[1]))
+}
+
 
 level.create = _ => {
     game.physics.startSystem(Phaser.Physics.ARCADE)
     game.stage.backgroundColor = '#000000'
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
     map = game.add.tilemap('objects')
-    music = music || game.add.audio('music')
-    gong = gong || game.add.audio('gong')
-    gunSound = gunSound || game.add.audio('gun')
-    explosion = explosion || game.add.audio('explosion')
-    coinSounds[50] = coinSounds[50] || game.add.audio('coin1')
-    coinSounds[100] = coinSounds[100] || game.add.audio('coin2')
-    coinSounds[150] = coinSounds[150] || game.add.audio('coin3')
-    coinSounds[200] = coinSounds[200] || game.add.audio('coin4')
-    coinSounds[300] = coinSounds[300] || game.add.audio('coin5')
-    coinSounds[500] = coinSounds[500] || game.add.audio('coin6')
+    _AUDIO_LINK.forEach(i => {
+        const k = i[0]
+        AUDIO[k] = AUDIO[k] || game.add.audio(k)
+    })
+    //coinSounds[50] = coinSounds[50] || game.add.audio('coin1')
+    //coinSounds[100] = coinSounds[100] || game.add.audio('coin2')
+    //coinSounds[150] = coinSounds[150] || game.add.audio('coin3')
+    //coinSounds[200] = coinSounds[200] || game.add.audio('coin4')
+    //coinSounds[300] = coinSounds[300] || game.add.audio('coin5')
+    //coinSounds[500] = coinSounds[500] || game.add.audio('coin6')
     map.addTilesetImage('Assets', 'tiles')
     layer = map.createLayer('Level 1')
     layer.resizeWorld()
@@ -212,8 +213,8 @@ level.create = _ => {
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
     buttons.jet = game.input.keyboard.addKey(Phaser.Keyboard.ALT)
     buttons.gun = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL)
-    music.onStop.add(music.play, this)
-    music.play()
+    AUDIO.music.onStop.add(AUDIO.music.play, this)
+    AUDIO.music.play()
 }
 
 level.initiateElementAnimations = _ => {
@@ -234,7 +235,6 @@ level.initiateElementAnimations = _ => {
             const offset = s => ({fire: [c.width*.2/2+1,c.width*.2/.8]})[s] || [c.width*.1/2,c.height*.1/2]
             c.body.setCircle(bodySize(k))
             c.body.offset.setTo(...offset(k))
-
         })
     })
 }
@@ -261,19 +261,26 @@ level.died = function(sprite, tile) {
         nanthy.respawn()
         sleep(200).then(_ => sprite.destroy())
     }, this)
-    explosion.play()
+    AUDIO.explosion.play()
 }
 level.itemPickup = value => (sprite, tile) => {
-    console.log(tile)
+    const Matchers = {}
+    Matchers[BLOCKS.p.gum] = "coin"
+    Matchers[BLOCKS.p.diamond] = "coin"
+    Matchers[BLOCKS.p.r_diamond] = "coin"
+    Matchers[BLOCKS.p.crown] = "coin"
+    Matchers[BLOCKS.p.wand] = "coin"
+    Matchers[BLOCKS.p.ring] = "coin"
     if (!isNanthy(sprite)){return}
     (level.addValue(value).bind(level))(sprite, tile)
-    coinSounds[value].play()
+    const track = AUDIO[Matchers[tile.index]]
+    track && track.play()
 }
 level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.clearTile(tile)}
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
-    gong.play()
+    AUDIO.gong.play()
     tile.destroy()
     this.hasKey = true
     this.addScore(1000)
@@ -302,7 +309,7 @@ level.shootGun = function() {
     if (!nanthy.hasGun || !nanthy.sprite.alive) {return}
     gun.fireAngle = nanthy.direction==="right"?0:180
     gun.fireFrom.setTo(nanthy.sprite.x+(gun.fireAngle?-1:1)*8, nanthy.sprite.y - 8);
-    gun.fire() && gunSound.play()
+    gun.fire() && AUDIO.gunSound.play()
 }
 level.update = _ => {
     const ar = game.physics.arcade
