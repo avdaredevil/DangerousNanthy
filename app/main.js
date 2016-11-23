@@ -309,7 +309,7 @@ level.shootGun = function() {
     if (!nanthy.hasGun || !nanthy.sprite.alive) {return}
     gun.fireAngle = nanthy.direction==="right"?0:180
     gun.fireFrom.setTo(nanthy.sprite.x+(gun.fireAngle?-1:1)*8, nanthy.sprite.y - 8);
-    gun.fire() && AUDIO.gunSound.play()
+    gun.fire() && AUDIO.gun.play()
 }
 level.update = _ => {
     const ar = game.physics.arcade
