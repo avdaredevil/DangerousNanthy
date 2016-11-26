@@ -89,16 +89,18 @@ const BLOCKS = {
         },
     },
     star: 36,
-    g: function(p) {
-        const ev = v => typeof v == "function"?v():v,
-            recurseVal = (v,ar) => {const a = ar||[];typeof v == "object"?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}},
+    g: function(p,raw) {
+        if (p=="g" || p=="FLATTENED") {console.error("[Block::Fetch] Path",p,"disallowed");return}
+        const ev = v => typeof v == "function" && !raw?v():v,
+            recurseVal = (v,ar) => {const a = ar||[];typeof v == "object" && !raw?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}},
             pth = p.split(".")
         let val = pth.reduce((pr,c) => ev(pr[c])||"",this)
         if (typeof val == "function") {val = val()}
         else if (typeof val == "object") {val = recurseVal(val)}
         if (!val) {console.error("[Block::Fetch] Path",p,"is invalid!")}
         return val
-    }
+    },
+    FLATTENED: {}
 }
 const _AUDIO_LINK = {
     TRACKS: [
@@ -109,16 +111,25 @@ const _AUDIO_LINK = {
         ['coin','../assets/coin.mp3'],
         ['coinDrop','../assets/coin-drop.mp3'],
         ['coin3','../assets/glass-ping.mp3'],
-        ['blip','../assets/robot-blip.mp3'],
-        ['itemPick','../assets/sms-alert.mp3']
+        ['itemPick','../assets/robot-blip.mp3'],
+        ['blip','../assets/sms-alert.mp3']
     ],
     _EFFECTS_LINK: {
-        coin: "points",
+        coinDrop: "points",
+        coin: "points.gum",
         itemPick: ["jet","gun"],
         gong: "chalice",
-        death: "explosion",
+        explosion: "death",
     },
 }, AUDIO = {EFFECTS: {}}
+const Process = Object.keys(BLOCKS)
+while(Process.length) {
+    const k = Process.pop()
+    const v = BLOCKS.g(k,true);if (!v) {continue}
+    if (typeof v == "function") {continue}
+    if (v instanceof Array) {Object.keys(v[0]).forEach(b => Process.push(k+"."+b));continue}
+    BLOCKS.FLATTENED[k.split(".").slice(-1)[0]] = v
+}
 Object.keys(_AUDIO_LINK._EFFECTS_LINK).forEach(e => {
     const mar = k => k instanceof Array?k:[k]
     const v = mar(_AUDIO_LINK._EFFECTS_LINK[e])
@@ -272,6 +283,7 @@ level.died = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     console.log("Died")
     sprite.kill()
+    console.log(sprite,tile)
     level.playEffect(tile)
     sprite = this.game.add.sprite(sprite.x, sprite.y, "fire")
     sprite.anchor.setTo(0.5,0.5)
@@ -292,7 +304,6 @@ level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.has
 level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.playEffect(tile);this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
-    console.log(tile)
     level.playEffect(tile)
     tile.destroy()
     this.hasKey = true
@@ -301,7 +312,7 @@ level.gotKey = function(sprite, tile) {
 level.clearTile = (function(t) {t && map.removeTile(t.x, t.y, layer).destroy()}).bind(level)
 level.playEffect = t => {
     //If is Object not tile
-    if (t.key) {t = BLOCKS[t.key]}
+    if (t.key) {t = BLOCKS.FLATTENED[t.key]}
     const track = AUDIO[AUDIO.EFFECTS[t.index||t]]
     track && track.play()
 }
@@ -390,6 +401,7 @@ level.movementControls = function(){
     if (cursors.up.isDown){gameInit()
         nanthy.sprite.animations.play('jump', 20, true)
         if (floored){
+            AUDIO.blip.play()
             nanthy.sprite.body.velocity.y = -velocities.jump
             nanthy.doNothing = false
         }
