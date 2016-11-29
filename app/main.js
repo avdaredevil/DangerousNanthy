@@ -18,7 +18,7 @@ const nanthy = {
     doNothing: true,
     respawn: _ => {
         const d = level.data, {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
-        const yc = layer.position.y+game.world.height/10*(s_y+1)-nanthy.sprite.height/2,
+        const yc = game.world.height/10*(s_y+1)-nanthy.sprite.height/2,
             xc = BLOCK_SZ*s_x+nanthy.sprite.width/2
         nanthy.sprite.reset(xc,yc)
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
@@ -170,26 +170,19 @@ level.create = _ => {
     level.score = game.score
     level.data = game.cache.getJSON('levelData')
     //= Collisions =========================|
-    map.setCollisionBetween(14, 16)
-    map.setCollisionBetween(27, 28)
-    map.setCollisionByIndex(23)
-    map.setCollisionByIndex(34)
-    map.setCollisionByIndex(39)
-    map.setCollisionByIndex(17)
-    map.setCollisionByIndex(18)
-    map.setCollisionByIndex(40)
     // All id's are incremented by 1
-    ;[14,15,16,17,18,23,27,28,39,40].forEach(i => map.setTileIndexCallback(i, level.bulletKill, level));
-    map.setTileIndexCallback(3, level.gotJetpack, level);
-    map.setTileIndexCallback(13, level.gotGun, level);
-    map.setTileIndexCallback(19, level.gotKey, level);
-    map.setTileIndexCallback(10, level.finishLevel, level);
-    map.setTileIndexCallback(5, level.itemPickup(50), level);
-    map.setTileIndexCallback(11, level.itemPickup(100), level);
-    map.setTileIndexCallback(12, level.itemPickup(150), level);
-    map.setTileIndexCallback(26, level.itemPickup(200), level);
-    map.setTileIndexCallback(24, level.itemPickup(300), level);
-    map.setTileIndexCallback(25, level.itemPickup(500), level);
+    BLOCKS.g("collisions").forEach(id => map.setCollisionByIndex(id))
+    BLOCKS.g("collisions").forEach(i => map.setTileIndexCallback(i, level.bulletKill, level))
+    map.setTileIndexCallback(BLOCKS.g("jet"), level.gotJetpack, level);
+    map.setTileIndexCallback(BLOCKS.g("gun"), level.gotGun, level);
+    map.setTileIndexCallback(BLOCKS.g("chalice"), level.gotKey, level);
+    map.setTileIndexCallback(BLOCKS.g("door"), level.finishLevel, level);
+    map.setTileIndexCallback(BLOCKS.g("points.gum"), level.itemPickup(50), level);
+    map.setTileIndexCallback(BLOCKS.g("points.diamond"), level.itemPickup(100), level);
+    map.setTileIndexCallback(BLOCKS.g("points.r_diamond"), level.itemPickup(150), level);
+    map.setTileIndexCallback(BLOCKS.g("points.ring"), level.itemPickup(200), level);
+    map.setTileIndexCallback(BLOCKS.g("points.crown"), level.itemPickup(300), level);
+    map.setTileIndexCallback(BLOCKS.g("points.wand"), level.itemPickup(500), level);
     animate = {};["fire","electricity","water","chalice"].forEach(i => {animate[i] = game.add.group()});
     Object.keys(animate).forEach(k => {
         const lookup = {chalice: 19, fire: 2, electricity: 41, water: 35}
@@ -238,7 +231,7 @@ level.create = _ => {
     //level.text.position.y = (50-level.text.height)/2
     //nanthy.sprite.body.onBeginContact.add(blockHit, this);
 
-    const b=game.world.bounds;game.world.setBounds(b.x,b.y-10,b.width,b.height)
+    const b=game.world.bounds;game.world.setBounds(b.x,b.y-BLOCK_SZ,b.width,b.height)
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
@@ -426,7 +419,8 @@ level.render = _ => {
     //animate.fire.children.forEach(e => game.debug.body(e))
     //animate.water.children.forEach(e => game.debug.body(e))
 }
-var game = new Phaser.Game(608,320+10*2, Phaser.AUTO, 'game', undefined, true)
+const DIMS = {width: BLOCK_SZ*19, height: BLOCK_SZ*10, PAD: BLOCK_SZ/8, TOOLBAR: BLOCK_SZ*7/8, FOOT: BLOCK_SZ*(2-1/8)}
+var game = new Phaser.Game(DIMS.width,DIMS.height+DIMS.PAD*2+DIMS.TOOLBAR+DIMS.FOOT, Phaser.AUTO, 'game', undefined, true)
 game.state.add("Level", level)
 game.level = 1;game.score = 0
 game.state.start("Level")
