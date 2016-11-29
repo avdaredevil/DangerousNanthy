@@ -145,6 +145,8 @@ level.preload = _ => {
   game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', '../assets/items2.png')
   game.load.image('bullet', '../assets/bullet.png')
+  game.load.image('border', '../assets/border-top.png')
+  game.load.image('face', '../assets/face.png')
   game.load.spritesheet('nanthy', '../assets/Dave.png', 36, BLOCK_SZ)
   game.load.spritesheet('electricity', '../assets/electricity.png', BLOCK_SZ, BLOCK_SZ)
   game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
@@ -171,7 +173,7 @@ level.create = _ => {
     level.data = game.cache.getJSON('levelData')
     //= Collisions =========================|
     // All id's are incremented by 1
-    BLOCKS.g("collisions").forEach(id => map.setCollisionByIndex(id))
+    BLOCKS.g("collisions").forEach(i => map.setCollisionByIndex(i))
     BLOCKS.g("collisions").forEach(i => map.setTileIndexCallback(i, level.bulletKill, level))
     map.setTileIndexCallback(BLOCKS.g("jet"), level.gotJetpack, level);
     map.setTileIndexCallback(BLOCKS.g("gun"), level.gotGun, level);
@@ -198,6 +200,7 @@ level.create = _ => {
 
     game.physics.enable(nanthy.sprite)
     game.physics.arcade.gravity.y = 700
+    const b=game.world.bounds;game.world.setBounds(b.x,b.y-BLOCK_SZ,b.width,b.height)
     //= Nanthy ==============================|
     nanthy.sprite.body.bounce.y = 0
     nanthy.sprite.body.width = nanthy.sprite.width/3
@@ -223,15 +226,24 @@ level.create = _ => {
     gun.bulletGravity.y = -game.physics.arcade.gravity.y
     gun.bulletKillType = Phaser.Weapon.KILL_CAMERA_BOUNDS
     //= Texts ==============================|
-    level.text = game.add.text(0,0, "Dangerous Nanthy",{font: "32px Raleway,Arial", fill: "#23b929"})
-    level.text.fixedToCamera = true
-    level.scoreText = game.add.text(400,0, ``, {font: "32px Raleway,Arial", fill: "#23b929", boundsAlignH: "right"})
+    const border = DIMS.PAD, textarea = DIMS.TOOLBAR - border, font = textarea - 1
+    const common_styles = {font: font+"px Raleway,Arial", fill: "#23b929", boundsAlignV: "center"}
+    level.texts = {
+        title: game.add.text(0,0, "NANTHY", common_styles),
+        score: game.add.text(0,0, "SCORE", {boundsAlignH: "right", ...common_styles}),
+        key: game.add.text(0,DIMS.height+BLOCK_SZ*2, "GO THRU THE DOOR!", {boundsAlignH: "center", ...common_styles}),
+    }
+    const inFooter = {key:1}
+    Object.keys(level.texts).forEach(k => {
+        const text = level.texts[k]
+        text.setTextBounds(0, 0, DIMS.width, inFooter[k]?textarea:BLOCK_SZ)
+        if (inFooter[k]) {text.alpha = 0}
+        text.fixedToCamera = true
+    })
     level.setScore(level.score)
-    level.scoreText.fixedToCamera = true
-    //level.text.position.y = (50-level.text.height)/2
-    //nanthy.sprite.body.onBeginContact.add(blockHit, this);
-
-    const b=game.world.bounds;game.world.setBounds(b.x,b.y-BLOCK_SZ,b.width,b.height)
+    level.border = game.add.tileSprite(-BLOCK_SZ/2, textarea, DIMS.width+BLOCK_SZ/2, border, "border")
+    level.border.fixedToCamera = true
+    //= CONTROLS ===========================|
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
@@ -301,6 +313,7 @@ level.gotKey = function(sprite, tile) {
     level.playEffect(tile)
     tile.destroy()
     this.hasKey = true
+    game.add.tween(level.texts.key).to({alpha: 1}, 400, Phaser.Easing.Bounce.InOut, true)
     this.addScore(1000)
 }
 level.clearTile = (function(t) {t && map.removeTile(t.x, t.y, layer).destroy()}).bind(level)
@@ -314,7 +327,7 @@ level.addScore = (function(s) {this.setScore(this.score+(s||0))}).bind(level)
 level.setScore = (function(s) {
     this.score=s||0
     if(isNaN(this.score)) {this.score = 0}
-    level.scoreText.setText(`Score: ${fmtNum(this.score)}`)
+    level.texts.score.setText(`SCORE: ${fmtNum(this.score)}`)
 }).bind(level)
 level.toggleJetpack = function() {
     if (!nanthy.hasJet || !nanthy.sprite.alive || (this._nextToggle_jet && this.game.time.time < this._nextToggle_jet)) {return}
