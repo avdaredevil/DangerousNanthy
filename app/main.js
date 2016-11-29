@@ -238,6 +238,7 @@ level.create = _ => {
     //level.text.position.y = (50-level.text.height)/2
     //nanthy.sprite.body.onBeginContact.add(blockHit, this);
 
+    const b=game.world.bounds;game.world.setBounds(b.x,b.y-10,b.width,b.height)
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
