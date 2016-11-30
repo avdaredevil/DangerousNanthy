@@ -2,7 +2,6 @@
 //TODO: Extract explosion for Nanthy death animation
 //TODO: Enemies in all levels swapped with the Cloud Sprite
 //TODO: Climb Animation link with climbable block [Tree leaves/Trunks, Stars]
-//TODO: Sound effect when point-valued blocks are collected
 //TODO: Jetpack ammo
 //TODO: Nanthy Lives and View Toolbar, and Footer with Gun/Jetpack/Key Flags [Can prolly use Polymer]
 //= GLOBALS ===============================================================|
@@ -18,7 +17,6 @@ const makeRectangle = (x,y,w,h,fill) => {
 }
 //= OBJECTS ===============================================================|
 const nanthy = {
-    sprite: undefined,
     direction: 'right',
     doNothing: true,
     respawn: _ => {
