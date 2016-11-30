@@ -1,7 +1,7 @@
 # Dangerous Nanthy
 >A web clone of the classic DOS game Dangerous Dave, with a twist!
-
-![snapshot](snapshot.png)
+#### Inside Node Webkit
+![Dangerous Nanthy](https://cloud.githubusercontent.com/assets/5303018/20740382/8e0d6d4a-b690-11e6-8951-d943acf4aafa.png)
 
 ## The stuff on the inside ~oooohhh~
 * Game engine - Phaser.io
