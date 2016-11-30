@@ -107,15 +107,15 @@ const BLOCKS = {
 }
 const _AUDIO_LINK = {
     TRACKS: [
-        ['music','../assets/02 Underclocked.mp3'],
-        ['gun','../assets/gun.mp3'],
-        ['explosion','../assets/explosion.mp3'],
-        ['gong','../assets/gong.mp3'],
-        ['coin','../assets/coin.mp3'],
-        ['coinDrop','../assets/coin-drop.mp3'],
-        ['coin3','../assets/glass-ping.mp3'],
-        ['itemPick','../assets/robot-blip.mp3'],
-        ['blip','../assets/sms-alert.mp3']
+        ['music','../assets/audio-ogg/Underclocked.ogg'],
+        ['gun','../assets/audio-ogg/gun.ogg'],
+        ['explosion','../assets/audio-ogg/explosion.ogg'],
+        ['gong','../assets/audio-ogg/gong.ogg'],
+        ['coin','../assets/audio-ogg/coin.ogg'],
+        ['coinDrop','../assets/audio-ogg/coin-drop.ogg'],
+        ['coin3','../assets/audio-ogg/glass-ping.ogg'],
+        ['itemPick','../assets/audio-ogg/robot-blip.ogg'],
+        ['blip','../assets/audio-ogg/sms-alert.ogg']
     ],
     _EFFECTS_LINK: {
         coinDrop: "points",
