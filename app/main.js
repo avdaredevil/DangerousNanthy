@@ -239,9 +239,11 @@ level.create = _ => {
     level.texts = {
         title: game.add.text(0,0, "NANTHY", common_styles),
         score: game.add.text(0,0, "SCORE", {boundsAlignH: "right", ...common_styles}),
+        jet: game.add.text(0,DIMS.height+BLOCK_SZ, "JETPACK", common_styles),
+        gun: game.add.text(0,DIMS.height+BLOCK_SZ, "GUN", {boundsAlignH: "right", ...common_styles}),
         key: game.add.text(0,DIMS.height+BLOCK_SZ*2, "GO THRU THE DOOR!", {boundsAlignH: "center", ...common_styles}),
     }
-    const inFooter = {key:1}
+    const inFooter = {key:1,gun:1,jet:1}
     Object.keys(level.statics).forEach(k => {level.statics[k].fixedToCamera = true})
     Object.keys(level.texts).forEach(k => {
         const text = level.texts[k]
@@ -256,7 +258,7 @@ level.create = _ => {
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
     buttons.jet = game.input.keyboard.addKey(Phaser.Keyboard.ALT)
     buttons.gun = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL)
-    AUDIO.music.onStop.add(function() {AUDIO.music.play.bind(this)()}, this)
+    AUDIO.music.onStop.add(_ => AUDIO.music.play(), this)
     AUDIO.music.play()
 }
 
@@ -313,16 +315,17 @@ level.itemPickup = value => (sprite, tile) => {
     level.addScore(value)
     level.clearTile(tile)
 }
-level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasGun = true;this.playEffect(tile);this.clearTile(tile)}
-level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};nanthy.hasJet = true;this.playEffect(tile);this.clearTile(tile)}
+level.gotGun = function(sprite, tile) {if (!isNanthy(sprite)){return};level.showFooterText("gun");nanthy.hasGun = true;this.playEffect(tile);this.clearTile(tile)}
+level.gotJetpack = function(sprite, tile) {if (!isNanthy(sprite)){return};level.showFooterText("jet");nanthy.hasJet = true;this.playEffect(tile);this.clearTile(tile)}
 level.gotKey = function(sprite, tile) {
     if (!isNanthy(sprite)){return}
     level.playEffect(tile)
     tile.destroy()
+    level.showFooterText("key")
     this.hasKey = true
-    game.add.tween(level.texts.key).to({alpha: 1}, 400, Phaser.Easing.Bounce.InOut, true)
     this.addScore(1000)
 }
+level.showFooterText = k => game.add.tween(level.texts[k]).to({alpha: 1}, 400, Phaser.Easing.Bounce.InOut, true)
 level.clearTile = (function(t) {t && map.removeTile(t.x, t.y, layer).destroy()}).bind(level)
 level.playEffect = t => {
     //If is Object not tile
