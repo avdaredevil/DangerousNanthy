@@ -1,10 +1,22 @@
 {
   "name": "dangerousnanthy",
   "version": "1.0.0",
-  "description": "",
+  "description": "Explore the adventures of nanthy as he goes through ten levels of adventures with guns, fire, jetpacks, enemies and more!",
   "main": "gulpfile.babel.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "package/index.html",
+  "node-remote": "http://localhost:5000",
+  "window": {
+    "icon": "./icon.png",
+    "toolbar": true,
+    "frame": true,
+    "width": 973,
+    "height": 666,
+    "position": "center",
+    "min_width": 605,
+    "min_height": 414
   },
   "repository": {
     "type": "git",
