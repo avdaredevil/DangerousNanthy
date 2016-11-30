@@ -11,6 +11,11 @@ var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
 const BLOCK_SZ = 32, sleep = t => new Promise(res => setTimeout(res,t))
 const isNanthy = s => s==nanthy.sprite,
     fmtNum = n => {const [f,l] = n.toString().split(".");return f.replace(/\B(?=(\d{3})+(?!\d))/g, ",")+(l?"."+l:'')}
+const makeRectangle = (x,y,w,h,fill) => {
+    const b = game.add.bitmapData(w, h), c = b.ctx
+    c.beginPath();c.rect(0,0,w,h);c.fillStyle = fill;c.fill()
+    return game.add.sprite(x,y,b)
+}
 //= OBJECTS ===============================================================|
 const nanthy = {
     sprite: undefined,
@@ -228,12 +233,18 @@ level.create = _ => {
     //= Texts ==============================|
     const border = DIMS.PAD, textarea = DIMS.TOOLBAR - border, font = textarea - 1
     const common_styles = {font: font+"px Raleway,Arial", fill: "#23b929", boundsAlignV: "center"}
+    level.statics = {
+        textBg: makeRectangle(0,0,DIMS.width,textarea,"#000000"),
+        border: game.add.tileSprite(-BLOCK_SZ/2, textarea, DIMS.width+BLOCK_SZ/2, border, "border"),
+        footerBg: makeRectangle(0,game.world.height+DIMS.TOOLBAR+2*DIMS.PAD,DIMS.width,DIMS.FOOT,"#000000"),
+    }
     level.texts = {
         title: game.add.text(0,0, "NANTHY", common_styles),
         score: game.add.text(0,0, "SCORE", {boundsAlignH: "right", ...common_styles}),
         key: game.add.text(0,DIMS.height+BLOCK_SZ*2, "GO THRU THE DOOR!", {boundsAlignH: "center", ...common_styles}),
     }
     const inFooter = {key:1}
+    Object.keys(level.statics).forEach(k => {level.statics[k].fixedToCamera = true})
     Object.keys(level.texts).forEach(k => {
         const text = level.texts[k]
         text.setTextBounds(0, 0, DIMS.width, inFooter[k]?textarea:BLOCK_SZ)
@@ -241,15 +252,13 @@ level.create = _ => {
         text.fixedToCamera = true
     })
     level.setScore(level.score)
-    level.border = game.add.tileSprite(-BLOCK_SZ/2, textarea, DIMS.width+BLOCK_SZ/2, border, "border")
-    level.border.fixedToCamera = true
     //= CONTROLS ===========================|
     game.camera.follow(nanthy.sprite)
     cursors = game.input.keyboard.createCursorKeys()
     buttons.run = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
     buttons.jet = game.input.keyboard.addKey(Phaser.Keyboard.ALT)
     buttons.gun = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL)
-    AUDIO.music.onStop.add(AUDIO.music.play, this)
+    AUDIO.music.onStop.add(function() {AUDIO.music.play.bind(this)()}, this)
     AUDIO.music.play()
 }
 
