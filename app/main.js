@@ -23,10 +23,10 @@ const nanthy = {
         const d = level.data, {x:s_x,y:s_y} = d?d.spawn:{x:2,y:8}
         const yc = game.world.height/10*(s_y+1)-nanthy.sprite.height/2,
             xc = BLOCK_SZ*s_x+nanthy.sprite.width/2
-        nanthy.sprite.reset(xc,yc)
         nanthy.sprite.scale.x = Math.abs(nanthy.sprite.scale.x)
         nanthy.direction = "right"
         ;[10,100,1000].forEach(t => sleep(t).then(_=>{nanthy.sprite.body.width = Math.abs(nanthy.sprite.width/3)}));
+        sleep(10).then(_=>nanthy.sprite.reset(xc,yc))
         level.bornTween && level.bornTween.stop()
         //API: properties, duration, ease, autoStart, delay, 4, yoyo
         level.bornTween = game.add.tween(nanthy.sprite).to({alpha: 0}, 400, Phaser.Easing.Bounce.InOut, true, 0, -1, true)
