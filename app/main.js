@@ -1,4 +1,3 @@
-//TODO: Level 5 triangular bodies for slanted blocks
 //TODO: Extract explosion for Nanthy death animation
 //TODO: Enemies in all levels swapped with the Cloud Sprite
 //TODO: Climb Animation link with climbable block [Tree leaves/Trunks, Stars]
@@ -374,8 +373,9 @@ level.update = _ => {
     if (nanthy.hasJet && nanthy.jet && !level.gameInit) {level.jetControls.bind(level)()}
     else {level.movementControls.bind(level)()}
     //= Warping ========|
-    if (nanthy.sprite.y < -BLOCK_SZ) {nanthy.sprite.y = game.world.height + BLOCK_SZ}
-    if (nanthy.sprite.y > game.world.height + 32) {nanthy.sprite.y = -BLOCK_SZ}
+    const WARP_PAD = BLOCK_SZ*2.5
+    if (nanthy.sprite.y < -WARP_PAD) {nanthy.sprite.y = game.world.height + WARP_PAD}
+    if (nanthy.sprite.y > game.world.height + WARP_PAD) {nanthy.sprite.y = -WARP_PAD}
     //= Terminal ========|
     nanthy.sprite.body.velocity.y = Math.min(nanthy.sprite.body.velocity.y,400)
 }

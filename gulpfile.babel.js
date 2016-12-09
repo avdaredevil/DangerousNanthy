@@ -3,6 +3,7 @@ const babel = require('gulp-babel')
 const pug = require('gulp-pug')
 const pump = require('pump')
 const connect = require('gulp-connect')
+const uglify = require('gulp-uglify');
 
 const roots = {
   src: 'app',
@@ -26,6 +27,7 @@ gulp.task('js', (cb) => {
       babel({
         presets: ['es2015', 'stage-0']
       }),
+      uglify(),
       gulp.dest(dests.JS)
     ],
     cb
