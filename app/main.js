@@ -50,6 +50,10 @@ const BLOCKS = {
     gun: 13,
     chalice: 19,
     door: 10,
+    faux: {
+        grass: 37,
+        pink_faux_bar: 30,
+    },
     points: _ => BLOCKS.p,
     p: { //Points
         gum: 5,
@@ -67,7 +71,8 @@ const BLOCKS = {
             tl: 16,
             tr: 17,
         },
-        metal_bar: 18,
+        pink_bar: {down: 29, right: 18},
+        metal_bar: 4,
         pipe: {down: 28, right: 27},
         brown: 23,
         ice: 34,
@@ -90,8 +95,8 @@ const BLOCKS = {
             bl:31,
             br:33,
         },
+        star: 36,
     },
-    star: 36,
     g: function(p,raw) {
         if (p=="g" || p=="FLATTENED") {console.error("[Block::Fetch] Path",p,"disallowed");return}
         const ev = v => typeof v == "function" && !raw?v():v,
