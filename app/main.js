@@ -206,7 +206,7 @@ level.create = _ => {
     nanthy.sprite.anchor.y=0.5
 
     game.physics.enable(nanthy.sprite)
-    game.physics.arcade.gravity.y = 700
+    game.physics.arcade.gravity.y = 400
     const b=game.world.bounds;game.world.setBounds(b.x,b.y-BLOCK_SZ,b.width,b.height)
     //= Nanthy ==============================|
     nanthy.sprite.body.bounce.y = 0
@@ -332,6 +332,7 @@ level.gotKey = function(sprite, tile) {
 level.showFooterText = k => game.add.tween(level.texts[k]).to({alpha: 1}, 400, Phaser.Easing.Bounce.InOut, true)
 level.clearTile = (function(t) {t && map.removeTile(t.x, t.y, layer).destroy()}).bind(level)
 level.playEffect = t => {
+    if (!t) {return}
     //If is Object not tile
     if (t.key) {t = BLOCKS.FLATTENED[t.key]}
     const track = AUDIO[AUDIO.EFFECTS[t.index||t]]
@@ -377,7 +378,7 @@ level.update = _ => {
     if (nanthy.sprite.y < -WARP_PAD) {nanthy.sprite.y = game.world.height + WARP_PAD}
     if (nanthy.sprite.y > game.world.height + WARP_PAD) {nanthy.sprite.y = -WARP_PAD}
     //= Terminal ========|
-    nanthy.sprite.body.velocity.y = Math.min(nanthy.sprite.body.velocity.y,400)
+    nanthy.sprite.body.velocity.y = Math.min(nanthy.sprite.body.velocity.y,180)
 }
 
 level.ensureDirection = function(dir){
@@ -394,11 +395,11 @@ level.jetControls = function(){
     if (cursors.up.isDown) {delta.y-=velocities.jet}
     else if (cursors.down.isDown) {delta.y+=velocities.jet}
     nanthy.sprite.body.velocity.x=delta.x
-    nanthy.sprite.body.velocity.y=delta.y-12
+    nanthy.sprite.body.velocity.y=delta.y-6.5
 }
 level.movementControls = function(){
     const floored = nanthy.sprite.body.onFloor(),
-        velocities = {rest: 10+(floored?0:50), speed: 200, normal: 150, jump: 320},
+        velocities = {rest: 10+(floored?0:70), run: 200, walk: 130, jump: 230},
         gameInit = _ => level.gameInit && nanthy.unInit()
 
     if (cursors.left.isDown){gameInit()
@@ -408,7 +409,7 @@ level.movementControls = function(){
             nanthy.sprite.animations.play('left', 10, true)
         }
         nanthy.sprite.body.velocity.x -= velocities.rest
-        nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[buttons.run.isDown?"speed":"normal"])
+        nanthy.sprite.body.velocity.x = Math.max(nanthy.sprite.body.velocity.x,-velocities[buttons.run.isDown?"run":"walk"])
         nanthy.doNothing = false
     } else if (cursors.right.isDown){gameInit()
         level.ensureDirection("right")
@@ -417,7 +418,7 @@ level.movementControls = function(){
             nanthy.sprite.animations.play('left', 10, true)
         }
         nanthy.sprite.body.velocity.x += velocities.rest
-        nanthy.sprite.body.velocity.x = Math.min(nanthy.sprite.body.velocity.x,velocities[buttons.run.isDown?"speed":"normal"])
+        nanthy.sprite.body.velocity.x = Math.min(nanthy.sprite.body.velocity.x,velocities[buttons.run.isDown?"run":"walk"])
         nanthy.doNothing = false
     }
     if (cursors.up.isDown){gameInit()
