@@ -3,6 +3,8 @@
 #### Inside Node Webkit
 ![Dangerous Nanthy](https://cloud.githubusercontent.com/assets/5303018/20740382/8e0d6d4a-b690-11e6-8951-d943acf4aafa.png)
 
+### Link to live demo: [***PLAY DANGEROUS NANTHY***](https://dangerous-nanthy.herokuapp.com/package/)
+
 ## The stuff on the inside ~oooohhh~
 * Game engine - Phaser.io
 * Preprocessing - Node, Gulp, Babel
