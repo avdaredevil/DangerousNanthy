@@ -1,6 +1,32 @@
-bower_components
-node_modules
+# Dependencies
+node_modules/
 
-package
+# Build outputs
+package/
 
-npm-debug.log
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+
+# Data directory (for clipboard/temp files)
+data/
