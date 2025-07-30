@@ -7,8 +7,8 @@
 var map, layer, cursors, jumpButton, buttons = {}, result, animate, gun
 //= MACROS ================================================================|
 const BLOCK_SZ = 32, sleep = t => new Promise(res => setTimeout(res,t))
-const isNanthy = s => s==nanthy.sprite,
-    fmtNum = n => {const [f,l] = n.toString().split(".");return f.replace(/\B(?=(\d{3})+(?!\d))/g, ",")+(l?"."+l:'')}
+const isNanthy = s => s==nanthy.sprite
+const fmtNum = n => {const [f,l] = n.toString().split(".");return f.replace(/\B(?=(\d{3})+(?!\d))/g, ",")+(l?"."+l:'')}
 const makeRectangle = (x,y,w,h,fill) => {
     const b = game.add.bitmapData(w, h), c = b.ctx
     c.beginPath();c.rect(0,0,w,h);c.fillStyle = fill;c.fill()
@@ -98,9 +98,9 @@ const BLOCKS = {
     },
     g: function(p,raw) {
         if (p=="g" || p=="FLATTENED") {console.error("[Block::Fetch] Path",p,"disallowed");return}
-        const ev = v => typeof v == "function" && !raw?v():v,
-            recurseVal = (v,ar) => {const a = ar||[];typeof v == "object" && !raw?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}},
-            pth = p.split(".")
+        const ev = v => typeof v == "function" && !raw?v():v
+        const recurseVal = (v,ar) => {const a = ar||[];typeof v == "object" && !raw?Object.keys(v).forEach(i => recurseVal(v[i],a)):a.push(v);if (!ar) {return a}}
+        const pth = p.split(".")
         let val = pth.reduce((pr,c) => ev(pr[c])||"",this)
         if (typeof val == "function") {val = val()}
         else if (typeof val == "object") {val = recurseVal(val)}
@@ -111,15 +111,15 @@ const BLOCKS = {
 }
 const _AUDIO_LINK = {
     TRACKS: [
-        ['music','../assets/audio-ogg/Underclocked.ogg'],
-        ['gun','../assets/audio-ogg/gun.ogg'],
-        ['explosion','../assets/audio-ogg/explosion.ogg'],
-        ['gong','../assets/audio-ogg/gong.ogg'],
-        ['coin','../assets/audio-ogg/coin.ogg'],
-        ['coinDrop','../assets/audio-ogg/coin-drop.ogg'],
-        ['coin3','../assets/audio-ogg/glass-ping.ogg'],
-        ['itemPick','../assets/audio-ogg/robot-blip.ogg'],
-        ['blip','../assets/audio-ogg/sms-alert.ogg']
+        ['music','assets/audio-ogg/Underclocked.ogg'],
+        ['gun','assets/audio-ogg/gun.ogg'],
+        ['explosion','assets/audio-ogg/explosion.ogg'],
+        ['gong','assets/audio-ogg/gong.ogg'],
+        ['coin','assets/audio-ogg/coin.ogg'],
+        ['coinDrop','assets/audio-ogg/coin-drop.ogg'],
+        ['coin3','assets/audio-ogg/glass-ping.ogg'],
+        ['itemPick','assets/audio-ogg/robot-blip.ogg'],
+        ['blip','assets/audio-ogg/sms-alert.ogg']
     ],
     _EFFECTS_LINK: {
         coinDrop: "points",
@@ -148,17 +148,17 @@ Object.keys(_AUDIO_LINK._EFFECTS_LINK).forEach(e => {
 
 //= GAME INIT ===========================================================|
 level.preload = _ => {
-  game.load.json('levelData', '../assets/Level-'+game.level+'.config.json');
-  game.load.tilemap('objects', '../assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
-  game.load.image('tiles', '../assets/items2.png')
-  game.load.image('bullet', '../assets/bullet.png')
-  game.load.image('border', '../assets/border-top.png')
-  game.load.image('face', '../assets/face.png')
-  game.load.spritesheet('nanthy', '../assets/Dave.png', 36, BLOCK_SZ)
-  game.load.spritesheet('electricity', '../assets/electricity.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.spritesheet('water', '../assets/water.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.spritesheet('fire', '../assets/fire.png', BLOCK_SZ, BLOCK_SZ)
-  game.load.spritesheet('chalice', '../assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.json('levelData', 'assets/Level-'+game.level+'.config.json');
+  game.load.tilemap('objects', 'assets/Level-'+game.level+'.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.image('tiles', 'assets/items2.png')
+  game.load.image('bullet', 'assets/bullet.png')
+  game.load.image('border', 'assets/border-top.png')
+  game.load.image('face', 'assets/face.png')
+  game.load.spritesheet('nanthy', 'assets/Dave.png', 36, BLOCK_SZ)
+  game.load.spritesheet('electricity', 'assets/electricity.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('water', 'assets/water.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('fire', 'assets/fire.png', BLOCK_SZ, BLOCK_SZ)
+  game.load.spritesheet('chalice', 'assets/chalice.png', BLOCK_SZ, BLOCK_SZ)
   _AUDIO_LINK.TRACKS.forEach(i => game.load.audio(i[0], i[1]))
 }
 

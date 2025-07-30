@@ -1,9 +1,13 @@
 {
   "name": "dangerousnanthy",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Explore the adventures of nanthy as he goes through ten levels of adventures with guns, fire, jetpacks, enemies and more!",
   "main": "package/index.html",
+  "type": "module",
   "scripts": {
+    "build": "gulp build",
+    "dev": "gulp",
+    "clean": "rm -rf package/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "node-remote": "http://localhost:5000",
@@ -27,17 +31,17 @@
     "url": "https://github.com/ananthamapod/DangerousNanthy/issues"
   },
   "homepage": "https://github.com/ananthamapod/DangerousNanthy#readme",
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "browser-sync": "^3.0.2",
+    "gulp": "^5.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-pug": "^5.0.0",
+    "gulp-terser": "^2.1.0",
+    "jstransformer-clean-css": "^2.1.0"
+  },
   "dependencies": {
-    "babel-core": "^6.18.2",
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-stage-0": "^6.16.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-connect": "^5.0.0",
-    "gulp-pug": "^3.1.0",
-    "gulp-uglify": "^2.0.0",
-    "jstransformer-clean-css": "^1.1.2",
-    "phaser": "^2.6.2",
-    "pump": "^1.0.1"
+    "phaser": "^2.6.2"
   }
 }
