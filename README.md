@@ -5,9 +5,7 @@
 #### Inside Node Webkit
 ![Dangerous Nanthy](https://cloud.githubusercontent.com/assets/5303018/20740382/8e0d6d4a-b690-11e6-8951-d943acf4aafa.png)
 
-### Link to live demo: [***PLAY DANGEROUS NANTHY***](https://avdaredevil.github.io/DangerousNanthy/)
-
-> **Note:** The original Heroku demo at https://dangerous-nanthy.herokuapp.com/package/ may no longer be available.
+### 🎮🎮🎮 Play demo: [***PLAY DANGEROUS NANTHY***](https://avdaredevil.github.io/DangerousNanthy/) 🎮🎮🎮
 
 ## The stuff on the inside ~oooohhh~
 * Game engine - Phaser 2 (v2.6.2) - *Using original version for compatibility*
